@@ -54,29 +54,29 @@
                     <!-- skip sub package validation for now as some vendor packages like CIF apps will not pass -->
                     <skipSubPackageValidation>true</skipSubPackageValidation>
                     <embeddeds>
-                       <!--<embedded>
-                            <groupId>com.practice.main</groupId>
-                            <artifactId>aem-practice-main-deployment.ui.apps</artifactId>
-                            <type>zip</type>
-                            <target>/apps/practicemain-packages/application/install</target>
-                        </embedded>
-                        <embedded>
-                            <groupId>com.practice.main</groupId>
-                            <artifactId>aem-practice-main-deployment.core</artifactId>
-                            <target>/apps/practicemain-packages/application/install</target>
-                        </embedded>
-                        <embedded>
-                            <groupId>com.practice.main</groupId>
-                            <artifactId>aem-practice-main-deployment.ui.content</artifactId>
-                            <type>zip</type>
-                            <target>/apps/practicemain-packages/content/install</target>
-                        </embedded>
-                        <embedded>
-                            <groupId>com.practice.main</groupId>
-                            <artifactId>aem-practice-main-deployment.ui.config</artifactId>
-                            <type>zip</type>
-                            <target>/apps/practicemain-packages/application/install</target>
-                        </embedded>--> 
+                        <!--<embedded>
+                             <groupId>com.practice.main</groupId>
+                             <artifactId>aem-practice-main-deployment.ui.apps</artifactId>
+                             <type>zip</type>
+                             <target>/apps/practicemain-packages/application/install</target>
+                         </embedded>
+                         <embedded>
+                             <groupId>com.practice.main</groupId>
+                             <artifactId>aem-practice-main-deployment.core</artifactId>
+                             <target>/apps/practicemain-packages/application/install</target>
+                         </embedded>
+                         <embedded>
+                             <groupId>com.practice.main</groupId>
+                             <artifactId>aem-practice-main-deployment.ui.content</artifactId>
+                             <type>zip</type>
+                             <target>/apps/practicemain-packages/content/install</target>
+                         </embedded>
+                         <embedded>
+                             <groupId>com.practice.main</groupId>
+                             <artifactId>aem-practice-main-deployment.ui.config</artifactId>
+                             <type>zip</type>
+                             <target>/apps/practicemain-packages/application/install</target>
+                         </embedded>-->
                         <embedded>
                             <groupId>com.practice.test1</groupId>
                             <artifactId>aem-practicetest1-deployment</artifactId>
@@ -86,6 +86,18 @@
                         <embedded>
                             <groupId>com.practice.test2</groupId>
                             <artifactId>aem-practicetest2-deployment</artifactId>
+                            <type>zip</type>
+                            <target>/apps/practicemain-packages/application/install</target>
+                        </embedded>
+                        <embedded>
+                            <groupId>com.practice.main</groupId>
+                            <artifactId>netcentric-acl-config</artifactId>
+                            <type>zip</type>
+                            <target>/apps/practicemain-packages/application/install</target>
+                        </embedded>
+                        <embedded>
+                            <groupId>biz.netcentric.cq.tools.accesscontroltool</groupId>
+                            <artifactId>accesscontroltool-package</artifactId>
                             <type>zip</type>
                             <target>/apps/practicemain-packages/application/install</target>
                         </embedded>
@@ -120,7 +132,7 @@
                     <execution>
                         <id>aem-analyser</id>
                         <goals>
-                            <goal>project-analyse</goal>                           
+                            <goal>project-analyse</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -183,32 +195,32 @@
                     </plugin>
                 </plugins>
             </build>
-    </profile>
+        </profile>
     </profiles>
 
     <!-- ====================================================================== -->
     <!-- D E P E N D E N C I E S                                                -->
     <!-- ====================================================================== -->
     <dependencies>
-       <!-- <dependency>
-            <groupId>com.practice.main</groupId>
-            <artifactId>aem-practice-main-deployment.ui.apps</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>com.practice.main</groupId>
-            <artifactId>aem-practice-main-deployment.ui.content</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>com.practice.main</groupId>
-            <artifactId>aem-practice-main-deployment.ui.config</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>-->
+        <!-- <dependency>
+             <groupId>com.practice.main</groupId>
+             <artifactId>aem-practice-main-deployment.ui.apps</artifactId>
+             <version>${project.version}</version>
+             <type>zip</type>
+         </dependency>
          <dependency>
+             <groupId>com.practice.main</groupId>
+             <artifactId>aem-practice-main-deployment.ui.content</artifactId>
+             <version>${project.version}</version>
+             <type>zip</type>
+         </dependency>
+         <dependency>
+             <groupId>com.practice.main</groupId>
+             <artifactId>aem-practice-main-deployment.ui.config</artifactId>
+             <version>${project.version}</version>
+             <type>zip</type>
+         </dependency>-->
+        <dependency>
             <groupId>com.practice.test1</groupId>
             <artifactId>aem-practicetest1-deployment</artifactId>
             <version>1.1.0</version>
@@ -223,6 +235,20 @@
             <type>zip</type>
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/aem-practicetest2-deployment.all-${project.version}.zip</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.practice.main</groupId>
+            <artifactId>netcentric-acl-config</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>biz.netcentric.cq.tools.accesscontroltool</groupId>
+            <artifactId>accesscontroltool-package</artifactId>
+            <version>3.4.0</version>
+            <type>zip</type>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
