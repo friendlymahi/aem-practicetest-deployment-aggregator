@@ -32,7 +32,6 @@
   <modules>
 
     <module>all</module>
-    <module>netcentric-acl-config</module>
 
     <!-- <module>core</module>
 
