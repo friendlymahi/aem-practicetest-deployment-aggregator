@@ -111,9 +111,9 @@ jobs:
           echo "AIO_ACCESS_TOKEN=$access_token" >> $GITHUB_ENV
 
       - name: Authenticate with Adobe I/O CLI
-        run: aio auth:login --auth-token ${{ env.AIO_ACCESS_TOKEN }}
+        run: aio auth:access-token ${{ env.AIO_ACCESS_TOKEN }}
 
       - name: Deploy Packages (AEMaaCS Dev Env)
         if: github.ref_name == 'develop'
         run: |
-          aio cloudmanager:pipeline:create-execution --programId=${{ env.CM_PROGRAM_ID }} --pipelineId=${{ env.CM_PIPELINE_ID }} --auth-token ${{ env.AIO_ACCESS_TOKEN }}
+          aio cloudmanager:pipeline:create-execution --programId=${{ env.CM_PROGRAM_ID }} --pipelineId=${{ env.CM_PIPELINE_ID }}
