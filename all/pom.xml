@@ -76,16 +76,18 @@
                     <packageType>container</packageType>
                     <!-- skip sub package validation for now as some vendor packages like CIF apps will not pass -->
                     <skipSubPackageValidation>true</skipSubPackageValidation>
+                    <failOnDependencyErrors>true</failOnDependencyErrors>
+                    <failOnMissingEmbed>true</failOnMissingEmbed>
                     <embeddeds>
                         <embedded>
                             <groupId>com.practice.test1</groupId>
-                            <artifactId>aem-practicetest1-deployment</artifactId>
+                            <artifactId>aem-practicetest1-deployment.all</artifactId>
                             <type>zip</type>
                             <target>/apps/practicemain-packages/application/install</target>
                         </embedded>
                         <embedded>
                             <groupId>com.practice.test2</groupId>
-                            <artifactId>aem-practicetest2-deployment</artifactId>
+                            <artifactId>aem-practicetest2-deployment.all</artifactId>
                             <type>zip</type>
                             <target>/apps/practicemain-packages/application/install</target>
                         </embedded>
@@ -99,7 +101,7 @@
                             <groupId>biz.netcentric.cq.tools.accesscontroltool</groupId>
                             <artifactId>accesscontroltool-package</artifactId>
                             <type>zip</type>
-                            <target>/apps/practicemain-packages/application/install</target>
+                            <target>/apps/practicemain-vendor-packages/application/install</target>
                         </embedded>
                     </embeddeds>
                 </configuration>
