@@ -48,7 +48,13 @@ jobs:
           echo git checkout -b sandbox/develop-artifacts adobe/sandbox/develop-artifacts
           git checkout -b sandbox/develop-artifacts adobe/sandbox/develop-artifacts
           git pull adobe sandbox/develop-artifacts
-          git merge develop --allow-unrelated-histories --no-edit # May result in conflicts when done for the first time
+          # May result in conflicts when done for the first time
+          if ! git merge develop --allow-unrelated-histories --no-edit; then
+            echo "Merge conflicts detected:"
+            git diff --name-only --diff-filter=U
+            git diff
+            exit 1
+          fi
           rm -Rf all/maven-repo/com/practice/
           git apply /tmp/patches/private-artifacts.patch
           git add all/maven-repo/com/practice/*
