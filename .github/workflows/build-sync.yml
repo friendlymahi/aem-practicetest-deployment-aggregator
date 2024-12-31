@@ -44,9 +44,8 @@ jobs:
         if: github.ref_name == 'develop'
         run: |
           git remote add adobe "${{ env.REMOTE_GIT_REPO_URL }}"
-          git remote -v
-          git branch -l
-          git ls-remote adobe
+          git fetch adobe
+          echo git checkout -b sandbox/develop-artifacts adobe/sandbox/develop-artifacts
           git checkout -b sandbox/develop-artifacts adobe/sandbox/develop-artifacts
           git pull adobe sandbox/develop-artifacts
           git merge develop --allow-unrelated-histories --no-edit # May result in conflicts when done for the first time
