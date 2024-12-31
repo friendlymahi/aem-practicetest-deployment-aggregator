@@ -1,0 +1,58 @@
+name: Publish Maven Artifacts
+
+on:
+  push:
+    branches:
+      - main
+      - release
+      - develop
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    env:
+      MAVEN_PRIVATE_REPO_USERNAME: ${{ secrets.MAVEN_PRIVATE_REPO_USERNAME }}
+      MAVEN_PRIVATE_REPO_PASSWORD: ${{ secrets.MAVEN_PRIVATE_REPO_PASSWORD }}
+      MAVEN_PRIVATE_REPO_URL: ${{ secrets.MAVEN_PRIVATE_REPO_URL }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Maven with settings.xml
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      - name: Validate Build & Bump Version (Develop)
+        if: github.ref_name == 'develop'
+        run: |
+          mvn clean install -s.mvn/settings.xml -DskipTests
+
+          # Increment the version for the next snapshot
+          current_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          new_version=$(echo $current_version | sed 's/-SNAPSHOT$//') # Remove SNAPSHOT for version increment
+          
+          # Increment the version (e.g., 1.0.0 -> 1.0.1)
+          new_version=$(echo $new_version | awk -F. -v OFS=. '{ $NF++; } 1')-SNAPSHOT
+
+          # Update the version in the pom.xml
+          mvn versions:set -DnewVersion=$new_version
+
+          # Commit the version change back to the repository
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git commit -am "Bump version to $new_version"
+          git push origin develop
+
+      - name: Release Version (Main/Release)
+        if: github.ref_name == 'main' || github.ref_name == 'release'
+        run: |
+          # Deploy release version to GitHub Packages using the settings from .mvn/settings.xml
+          mvn clean install -s.mvn/settings.xml -DskipTests
+
+          # Prepare and perform the release
+          mvn release:prepare -DskipTests -DpushChanges=false
+          mvn release:perform -DskipTests
