@@ -105,14 +105,7 @@ jobs:
           CLIENT_ID = "${{ secrets.CM_AIO_CLIENT_ID }}"
           CLIENT_SECRET = "${{ secrets.CM_AIO_CLIENT_SECRET }}"
           AUTH_URL = "https://ims-na1.adobelogin.com/ims/token/v2"
-
-          response = requests.post(AUTH_URL, data={
-              'client_id': CLIENT_ID,
-              'client_secret': CLIENT_SECRET,
-              'grant_type': 'client_credentials',
-              'scope': 'openid,AdobeID,read_organizations'
-          })
-
+          response = requests.post(AUTH_URL, data={'client_id': CLIENT_ID, 'client_secret': CLIENT_SECRET, 'grant_type': 'client_credentials', 'scope': 'openid,AdobeID,read_organizations' })
           access_token = response.json().get('access_token')
           print(f"::set-env name=AIO_ACCESS_TOKEN::{access_token}")
           EOF
