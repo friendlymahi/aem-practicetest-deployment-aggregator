@@ -220,10 +220,10 @@
         <dependency>
             <groupId>com.practice.main</groupId>
             <artifactId>netcentric-acl-config</artifactId>
-            <version>${project.version}</version>
+            <version>0.0.1-SNAPSHOT</version>
             <type>zip</type>
             <scope>system</scope>
-            <systemPath>${project.basedir}/lib/netcentric-acl-config-${project.version}.zip</systemPath>
+            <systemPath>${project.basedir}/lib/netcentric-acl-config-0.0.1-SNAPSHOT.zip</systemPath>
         </dependency>
         <dependency>
             <groupId>biz.netcentric.cq.tools.accesscontroltool</groupId>
