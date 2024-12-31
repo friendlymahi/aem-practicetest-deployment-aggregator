@@ -112,8 +112,8 @@ jobs:
           access_token=$(echo $response | jq -r '.access_token')
           echo "AIO_ACCESS_TOKEN=$access_token" >> $GITHUB_ENV
 
-      - name: Authenticate with Adobe I/O CLI
-        run: aio auth:login
+#      - name: Authenticate with Adobe I/O CLI
+#        run: aio auth:login
 
       - name: Deploy Packages (AEMaaCS Dev Env)
         if: github.ref_name == 'develop'
