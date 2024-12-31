@@ -86,8 +86,10 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install Adobe I/O CLI
-        run: npm install -g @adobe/aio-cli
+      - name: Install Adobe I/O CLI & Plugins
+        run: |
+            npm install -g @adobe/aio-cli
+            aio plugins:install @adobe/aio-cli-plugin-cloudmanager
 
       - name: Install jq if not present
         run: |
@@ -111,9 +113,9 @@ jobs:
           echo "AIO_ACCESS_TOKEN=$access_token" >> $GITHUB_ENV
 
       - name: Authenticate with Adobe I/O CLI
-        run: aio auth:access-token ${{ env.AIO_ACCESS_TOKEN }}
+        run: aio auth:login
 
       - name: Deploy Packages (AEMaaCS Dev Env)
         if: github.ref_name == 'develop'
         run: |
-          aio cloudmanager:pipeline:create-execution --programId=${{ env.CM_PROGRAM_ID }} --pipelineId=${{ env.CM_PIPELINE_ID }}
+          aio cloudmanager pipeline create-execution ${{ env.CM_PIPELINE_ID }} --programId=${{ env.CM_PROGRAM_ID }}
