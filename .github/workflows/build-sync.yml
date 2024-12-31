@@ -30,7 +30,10 @@ jobs:
       - name: Validate Build (Develop)
         if: github.ref_name == 'develop'
         run: |
-          mvn clean install -s.mvn/settings.xml -DskipTests
+          mvn clean install -U -s.mvn/settings.xml -DskipTests
+          # Commit the version change back to the repository
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
           git add all/maven-repo/com/practice/*
           git commit -m "private artifacts"
           git format-patch -1 HEAD -o /tmp/patches
@@ -114,13 +117,3 @@ jobs:
         if: github.ref_name == 'develop'
         run: |
           aio cloudmanager:pipeline:create-execution --programId=${{ env.CM_PROGRAM_ID }} --pipelineId=${{ env.CM_PIPELINE_ID }} --auth-token ${{ env.AIO_ACCESS_TOKEN }}
-
-      - name: Release Version (Main/Release)
-        if: github.ref_name == 'main' || github.ref_name == 'release'
-        run: |
-          # Deploy release version to GitHub Packages using the settings from .mvn/settings.xml
-          mvn clean install -s.mvn/settings.xml -DskipTests
-
-          # Prepare and perform the release
-          mvn release:prepare -DskipTests -DpushChanges=false
-          mvn release:perform -DskipTests
