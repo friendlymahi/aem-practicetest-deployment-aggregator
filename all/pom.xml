@@ -41,6 +41,27 @@
     <!-- ====================================================================== -->
     <build>
         <plugins>
+             <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>3.1.2</version>
+            <executions>
+                <execution>
+                    <id>copy-dependencies</id>
+                    <phase>initialize</phase>
+                    <goals>
+                        <goal>copy-dependencies</goal>
+                    </goals>
+                    <configuration>
+                        <outputDirectory>${project.basedir}/maven-repo</outputDirectory>
+                        <excludeTransitive>true</excludeTransitive>
+                        <useRepositoryLayout>true</useRepositoryLayout>
+                        <excludeScope>system</excludeScope>
+                        <copyPom>true</copyPom>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
             <!-- ====================================================================== -->
             <!-- V A U L T   P A C K A G E   P L U G I N S                              -->
             <!-- ====================================================================== -->
@@ -57,29 +78,6 @@
                     <!-- skip sub package validation for now as some vendor packages like CIF apps will not pass -->
                     <skipSubPackageValidation>true</skipSubPackageValidation>
                     <embeddeds>
-                        <!--<embedded>
-                             <groupId>com.practice.main</groupId>
-                             <artifactId>aem-practice-main-deployment.ui.apps</artifactId>
-                             <type>zip</type>
-                             <target>/apps/practicemain-packages/application/install</target>
-                         </embedded>
-                         <embedded>
-                             <groupId>com.practice.main</groupId>
-                             <artifactId>aem-practice-main-deployment.core</artifactId>
-                             <target>/apps/practicemain-packages/application/install</target>
-                         </embedded>
-                         <embedded>
-                             <groupId>com.practice.main</groupId>
-                             <artifactId>aem-practice-main-deployment.ui.content</artifactId>
-                             <type>zip</type>
-                             <target>/apps/practicemain-packages/content/install</target>
-                         </embedded>
-                         <embedded>
-                             <groupId>com.practice.main</groupId>
-                             <artifactId>aem-practice-main-deployment.ui.config</artifactId>
-                             <type>zip</type>
-                             <target>/apps/practicemain-packages/application/install</target>
-                         </embedded>-->
                         <embedded>
                             <groupId>com.practice.test1</groupId>
                             <artifactId>aem-practicetest1-deployment</artifactId>
@@ -205,39 +203,19 @@
     <!-- D E P E N D E N C I E S                                                -->
     <!-- ====================================================================== -->
     <dependencies>
-        <!-- <dependency>
-             <groupId>com.practice.main</groupId>
-             <artifactId>aem-practice-main-deployment.ui.apps</artifactId>
-             <version>${project.version}</version>
-             <type>zip</type>
-         </dependency>
          <dependency>
-             <groupId>com.practice.main</groupId>
-             <artifactId>aem-practice-main-deployment.ui.content</artifactId>
-             <version>${project.version}</version>
-             <type>zip</type>
-         </dependency>
-         <dependency>
-             <groupId>com.practice.main</groupId>
-             <artifactId>aem-practice-main-deployment.ui.config</artifactId>
-             <version>${project.version}</version>
-             <type>zip</type>
-         </dependency>-->
-        <dependency>
             <groupId>com.practice.test1</groupId>
-            <artifactId>aem-practicetest1-deployment</artifactId>
-            <version>1.1.0</version>
+            <artifactId>aem-practicetest1-deployment.all</artifactId>
             <type>zip</type>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/aem-practicetest1-deployment.all-1.1.0.zip</systemPath>
+            <version>1.2.7-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.practice.test2</groupId>
-            <artifactId>aem-practicetest2-deployment</artifactId>
-            <version>${project.version}</version>
+            <artifactId>aem-practicetest2-deployment.all</artifactId>
             <type>zip</type>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/aem-practicetest2-deployment.all-${project.version}.zip</systemPath>
+            <version>0.0.5-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.practice.main</groupId>
@@ -255,4 +233,16 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+    <repositories>
+        <repository>
+            <id>local-repo</id>
+            <url>file://${project.basedir}/maven-repo</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 </project>
