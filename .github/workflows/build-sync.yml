@@ -43,7 +43,9 @@ jobs:
       - name: Sync with Adobe Git (Develop)
         if: github.ref_name == 'develop'
         run: |
-          git remote add adobe $REMOTE_GIT_REPO_URL
+          git remote -v
+          git branch -l
+          git remote add adobe "${{ env.REMOTE_GIT_REPO_URL }}"
           git checkout -b sandbox/develop-artifacts adobe/sandbox/develop-artifacts
           git pull adobe sandbox/develop-artifacts
           git merge develop --allow-unrelated-histories --no-edit # May result in conflicts when done for the first time
