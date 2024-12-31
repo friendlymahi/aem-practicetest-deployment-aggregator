@@ -1,0 +1,12 @@
+name: Build & Sync With Adobe Git Repo
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Wf trigger message
+        run: echo "Welcome to workflows"
