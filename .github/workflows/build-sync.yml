@@ -1,20 +1,21 @@
-name: Publish Maven Artifacts
+name: Build & Sync With Adobe Git Repo
 
 on:
-  push:
-    branches:
-      - main
-      - release
-      - develop
+  workflow_dispatch:
 
 jobs:
-  publish:
+  build-and-sync:
     runs-on: ubuntu-latest
 
     env:
       MAVEN_PRIVATE_REPO_USERNAME: ${{ secrets.MAVEN_PRIVATE_REPO_USERNAME }}
       MAVEN_PRIVATE_REPO_PASSWORD: ${{ secrets.MAVEN_PRIVATE_REPO_PASSWORD }}
       MAVEN_PRIVATE_REPO_URL: ${{ secrets.MAVEN_PRIVATE_REPO_URL }}
+      REMOTE_GIT_REPO_URL: ${{ secrets.REMOTE_GIT_REPO_URL }}
+      CM_AIO_CLIENT_ID: ${{ secrets.CM_AIO_CLIENT_ID }}
+      CM_AIO_CLIENT_SECRET: ${{ secrets.CM_AIO_CLIENT_SECRET }}
+      CM_PROGRAM_ID: ${{ secrets.CM_PROGRAM_ID }}
+      CM_PIPELINE_ID: ${{ secrets.CM_PIPELINE_ID }}
 
     steps:
       - name: Checkout code
@@ -26,15 +27,37 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
 
-      - name: Validate Build & Bump Version (Develop)
+      - name: Validate Build (Develop)
         if: github.ref_name == 'develop'
         run: |
           mvn clean install -s.mvn/settings.xml -DskipTests
+          git add all/maven-repo/com/practice/*
+          git commit -m "private artifacts"
+          git format-patch -1 HEAD -o /tmp/patches
+          mv /tmp/patches/0001-*.patch /tmp/patches/private-artifacts.patch
+          git reset --hard origin/develop
 
+      - name: Sync with Adobe Git (Develop)
+        if: github.ref_name == 'develop'
+        run: |
+          git remote add adobe $REMOTE_GIT_REPO_URL
+          git checkout -b sandbox/develop-artifacts adobe/sandbox/develop-artifacts
+          git pull adobe sandbox/develop-artifacts
+          git merge develop --allow-unrelated-histories --no-edit # May result in conflicts when done for the first time
+          rm -Rf all/maven-repo/com/practice/
+          git apply /tmp/patches/private-artifacts.patch
+          git add all/maven-repo/com/practice/*
+          git commit -m "resetting private artifacts"
+          git push adobe sandbox/develop-artifacts
+          git checkout develop
+          
+      - name: Bump Version (Develop)
+        if: github.ref_name == 'develop' && success()
+        run: |
           # Increment the version for the next snapshot
           current_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           new_version=$(echo $current_version | sed 's/-SNAPSHOT$//') # Remove SNAPSHOT for version increment
-          
+
           # Increment the version (e.g., 1.0.0 -> 1.0.1)
           new_version=$(echo $new_version | awk -F. -v OFS=. '{ $NF++; } 1')-SNAPSHOT
 
@@ -46,6 +69,51 @@ jobs:
           git config user.email "github-actions@github.com"
           git commit -am "Bump version to $new_version"
           git push origin develop
+          
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Adobe I/O CLI
+        run: npm install -g @adobe/aio-cli
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'
+
+      - name: Install Python dependencies
+        run: pip install requests
+
+      - name: Generate OAuth Token
+        run: |
+          python - <<EOF
+          import requests
+
+          CLIENT_ID = "${{ secrets.CM_AIO_CLIENT_ID }}"
+          CLIENT_SECRET = "${{ secrets.CM_AIO_CLIENT_SECRET }}"
+          AUTH_URL = "https://ims-na1.adobelogin.com/ims/token/v2"
+
+          response = requests.post(AUTH_URL, data={
+              'client_id': CLIENT_ID,
+              'client_secret': CLIENT_SECRET,
+              'grant_type': 'client_credentials',
+              'scope': 'openid,AdobeID,read_organizations'
+          })
+
+          access_token = response.json().get('access_token')
+          print(f"::set-env name=AIO_ACCESS_TOKEN::{access_token}")
+          EOF
+          echo "AIO_ACCESS_TOKEN=$(python -c 'import requests; CLIENT_ID=\"${{ secrets.CM_AIO_CLIENT_ID }}\"; CLIENT_SECRET=\"${{ secrets.CM_AIO_CLIENT_SECRET }}\"; AUTH_URL=\"https://ims-na1.adobelogin.com/ims/token/v2\"; response=requests.post(AUTH_URL, data={\"client_id\":CLIENT_ID, \"client_secret\":CLIENT_SECRET, \"grant_type\":\"client_credentials\", \"scope\":\"openid,AdobeID,read_organizations\"}); access_token=response.json().get(\"access_token\"); print(access_token)')" >> $GITHUB_ENV
+
+      - name: Authenticate with Adobe I/O CLI
+        run: aio auth:login --auth-token ${{ env.AIO_ACCESS_TOKEN }}
+
+      - name: Deploy Packages (AEMaaCS Dev Env)
+        if: github.ref_name == 'develop'
+        run: |
+          aio cloudmanager:pipeline:create-execution --programId=${{ env.CM_PROGRAM_ID }} --pipelineId=${{ env.CM_PIPELINE_ID }} --auth-token ${{ env.AIO_ACCESS_TOKEN }}
 
       - name: Release Version (Main/Release)
         if: github.ref_name == 'main' || github.ref_name == 'release'
