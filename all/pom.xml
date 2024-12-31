@@ -202,19 +202,29 @@
     <!-- D E P E N D E N C I E S                                                -->
     <!-- ====================================================================== -->
     <dependencies>
+        <dependency>
+            <groupId>com.practice.test1</groupId>
+            <artifactId>aem-practicetest1-deployment</artifactId>
+            <version>1.2.9-SNAPSHOT</version>
+            <type>pom</type>
+        </dependency>
          <dependency>
             <groupId>com.practice.test1</groupId>
             <artifactId>aem-practicetest1-deployment.all</artifactId>
             <type>zip</type>
             <version>1.2.9-SNAPSHOT</version>
-            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.practice.test2</groupId>
+            <artifactId>aem-practicetest2-deployment</artifactId>
+            <version>0.0.7-SNAPSHOT</version>
+            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>com.practice.test2</groupId>
             <artifactId>aem-practicetest2-deployment.all</artifactId>
             <type>zip</type>
             <version>0.0.7-SNAPSHOT</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.practice.main</groupId>
