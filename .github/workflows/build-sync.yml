@@ -89,27 +89,26 @@ jobs:
       - name: Install Adobe I/O CLI
         run: npm install -g @adobe/aio-cli
 
-      - name: Set up Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: '3.x'
-
-      - name: Install Python dependencies
-        run: pip install requests
+      - name: Install jq if not present
+        run: |
+          if ! command -v jq &> /dev/null; then
+            if [[ "$RUNNER_OS" == "Linux" ]]; then
+              sudo apt-get update
+              sudo apt-get install -y jq
+            elif [[ "$RUNNER_OS" == "macOS" ]]; then
+              brew install jq
+            fi
+          fi
 
       - name: Generate OAuth Token
         run: |
-          python - <<EOF
-          import requests
-
-          CLIENT_ID = "${{ secrets.CM_AIO_CLIENT_ID }}"
-          CLIENT_SECRET = "${{ secrets.CM_AIO_CLIENT_SECRET }}"
-          AUTH_URL = "https://ims-na1.adobelogin.com/ims/token/v2"
-          response = requests.post(AUTH_URL, data={'client_id': CLIENT_ID, 'client_secret': CLIENT_SECRET, 'grant_type': 'client_credentials', 'scope': 'openid,AdobeID,read_organizations' })
-          access_token = response.json().get('access_token')
-          print(f"::set-env name=AIO_ACCESS_TOKEN::{access_token}")
-          EOF
-          echo "AIO_ACCESS_TOKEN=$(python -c 'import requests; CLIENT_ID=\"${{ secrets.CM_AIO_CLIENT_ID }}\"; CLIENT_SECRET=\"${{ secrets.CM_AIO_CLIENT_SECRET }}\"; AUTH_URL=\"https://ims-na1.adobelogin.com/ims/token/v2\"; response=requests.post(AUTH_URL, data={\"client_id\":CLIENT_ID, \"client_secret\":CLIENT_SECRET, \"grant_type\":\"client_credentials\", \"scope\":\"openid,AdobeID,read_organizations\"}); access_token=response.json().get(\"access_token\"); print(access_token)')" >> $GITHUB_ENV
+          response=$(curl -s -X POST "https://ims-na1.adobelogin.com/ims/token/v2" \
+            -d "client_id=${{ secrets.CM_AIO_CLIENT_ID }}" \
+            -d "client_secret=${{ secrets.CM_AIO_CLIENT_SECRET }}" \
+            -d "grant_type=client_credentials" \
+            -d "scope=openid,AdobeID,read_organizations")
+          access_token=$(echo $response | jq -r '.access_token')
+          echo "AIO_ACCESS_TOKEN=$access_token" >> $GITHUB_ENV
 
       - name: Authenticate with Adobe I/O CLI
         run: aio auth:login --auth-token ${{ env.AIO_ACCESS_TOKEN }}
