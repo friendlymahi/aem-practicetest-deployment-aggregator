@@ -27,4 +27,4 @@ jobs:
           distribution: 'temurin'
 
       - name: Validate Build
-        run: mvn clean install -s.mvn/settings.xml -DskipTests
+        run: mvn clean install -U -s.mvn/settings.xml -DskipTests
