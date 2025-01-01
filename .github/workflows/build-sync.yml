@@ -12,10 +12,10 @@ jobs:
       MAVEN_PRIVATE_REPO_PASSWORD: ${{ secrets.MAVEN_PRIVATE_REPO_PASSWORD }}
       MAVEN_PRIVATE_REPO_URL: ${{ secrets.MAVEN_PRIVATE_REPO_URL }}
       REMOTE_GIT_REPO_URL: ${{ secrets.REMOTE_GIT_REPO_URL }}
-      CM_AIO_CLIENT_ID: ${{ secrets.CM_AIO_CLIENT_ID }}
-      CM_AIO_CLIENT_SECRET: ${{ secrets.CM_AIO_CLIENT_SECRET }}
+      CM_API_SERVICE_ACCOUNT_JSON: $${{ secrets.CM_API_SERVICE_ACCOUNT_JSON }}
       CM_PROGRAM_ID: ${{ secrets.CM_PROGRAM_ID }}
-      CM_PIPELINE_ID: ${{ secrets.CM_PIPELINE_ID }}
+      CM_PROD_PIPELINE_ID: ${{ secrets.CM_PROD_PIPELINE_ID }}
+      CM_DEV_PIPELINE_ID: ${{ secrets.CM_DEV_PIPELINE_ID }}
 
     steps:
       - name: Checkout code
@@ -86,36 +86,16 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install Adobe I/O CLI & Plugins
+      - name: Install & Configure - Adobe I/O CLI & Plugins
         run: |
             npm install -g @adobe/aio-cli
             aio plugins:install @adobe/aio-cli-plugin-cloudmanager
-
-      - name: Install jq if not present
-        run: |
-          if ! command -v jq &> /dev/null; then
-            if [[ "$RUNNER_OS" == "Linux" ]]; then
-              sudo apt-get update
-              sudo apt-get install -y jq
-            elif [[ "$RUNNER_OS" == "macOS" ]]; then
-              brew install jq
-            fi
-          fi
-
-      - name: Generate OAuth Token
-        run: |
-          response=$(curl -s -X POST "https://ims-na1.adobelogin.com/ims/token/v2" \
-            -d "client_id=${{ secrets.CM_AIO_CLIENT_ID }}" \
-            -d "client_secret=${{ secrets.CM_AIO_CLIENT_SECRET }}" \
-            -d "grant_type=client_credentials" \
-            -d "scope=openid,AdobeID,read_organizations")
-          access_token=$(echo $response | jq -r '.access_token')
-          echo "AIO_ACCESS_TOKEN=$access_token" >> $GITHUB_ENV
-
-#      - name: Authenticate with Adobe I/O CLI
-#        run: aio auth:login
+            echo "${{ env.CM_API_SERVICE_ACCOUNT_JSON }}" > /tmp/aio-service-account.json
+            aio config:set ims.contexts.aio-cli-plugin-cloudmanager /tmp/aio-service-account.json --file --json
+            aio config:set cloudmanager_programid ${{ env.CM_PROGRAM_ID }}
+            aio cloudmanager:program:list-pipelines
 
       - name: Deploy Packages (AEMaaCS Dev Env)
         if: github.ref_name == 'develop'
         run: |
-          aio cloudmanager pipeline create-execution ${{ env.CM_PIPELINE_ID }} --programId=${{ env.CM_PROGRAM_ID }}
+          aio cloudmanager pipeline create-execution ${{ env.CM_DEV_PIPELINE_ID }}
