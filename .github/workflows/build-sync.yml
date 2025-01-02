@@ -64,7 +64,7 @@ jobs:
           git show-ref --verify --quiet refs/heads/sandbox/develop-artifacts && git branch -D sandbox/develop-artifacts
           git remote remove adobe || true
           git remote add adobe "${{ env.REMOTE_GIT_REPO_URL }}"
-          git fetch --unshallow adobe
+          git fetch adobe --deepen=1000000
           echo git checkout -b sandbox/develop-artifacts adobe/sandbox/develop-artifacts
           git checkout -b sandbox/develop-artifacts adobe/sandbox/develop-artifacts
           git pull adobe sandbox/develop-artifacts
