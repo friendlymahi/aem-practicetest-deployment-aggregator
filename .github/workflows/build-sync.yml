@@ -76,6 +76,9 @@ jobs:
             git diff
             exit 1
           fi
+          git rev-parse --is-shallow-repository
+          git status
+          git push adobe sandbox/develop-artifacts
           rm -Rf all/maven-repo/com/practice/
           git apply /tmp/patches/private-artifacts.patch
           git add all/maven-repo/com/practice/*
