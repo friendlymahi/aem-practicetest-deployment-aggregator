@@ -12,8 +12,8 @@ jobs:
       MAVEN_PRIVATE_REPO_PASSWORD: ${{ secrets.MAVEN_PRIVATE_REPO_PASSWORD }}
       MAVEN_PRIVATE_REPO_URL: ${{ secrets.MAVEN_PRIVATE_REPO_URL }}
       REMOTE_GIT_REPO_URL: ${{ secrets.REMOTE_GIT_REPO_URL }}
-      CM_API_SERVICE_ACCOUNT_JSON: $${{ vars.CM_API_SERVICE_ACCOUNT_JSON }}
-      CM_PROGRAM_ID: ${{ secrets.CM_PROGRAM_ID }}
+      CM_API_SERVICE_ACCOUNT_JSON: $${{ secrets.CM_API_SERVICE_ACCOUNT_JSON }}
+      CM_AIO_PROGRAM_ID: ${{ secrets.CM_PROGRAM_ID }}
       CM_PROD_PIPELINE_ID: ${{ secrets.CM_PROD_PIPELINE_ID }}
       CM_DEV_PIPELINE_ID: ${{ secrets.CM_DEV_PIPELINE_ID }}
 
@@ -26,28 +26,16 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install jq
-        run: sudo apt-get install -y jq
-
       - name: Install & Configure - Adobe I/O CLI & Plugins
         run: |
           set -e
           set -x
           npm install -g @adobe/aio-cli
           aio plugins:install @adobe/aio-cli-plugin-cloudmanager
-          cat aio-config.json
-          aio config:set ims.contexts.aio-cli-plugin-cloudmanager aio-config.json --file --json
-          echo "config json set"
-          aio config:set cloudmanager_programid ${{ env.CM_PROGRAM_ID }}
-          echo "program id set" 
-          aio cloudmanager:program:list-pipelines
-          echo "above pipelines are the accurate list for the given program id"
-          echo "${{ secrets.CM_API_SERVICE_ACCOUNT_JSON }}" | base64 --decode > /tmp/aio-service-account.json
-          ls -ltr /tmp/aio*
-          cat /tmp/aio-service-account.json
+          echo "${{ env.CM_API_SERVICE_ACCOUNT_JSON }}" | base64 --decode > /tmp/aio-service-account.json
           aio config:set ims.contexts.aio-cli-plugin-cloudmanager /tmp/aio-service-account.json --file --json
           echo "config json reset"
-          aio config:set cloudmanager_programid ${{ env.CM_PROGRAM_ID }}
+          aio config:set cloudmanager_programid ${{ env.CM_AIO_PROGRAM_ID }}
           echo "program id set" 
           aio cloudmanager:program:list-pipelines
           echo "above pipelines are the accurate list for the given program id"
