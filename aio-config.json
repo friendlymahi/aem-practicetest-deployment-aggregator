@@ -1,0 +1,11 @@
+{
+  "client_id": "892f8263ae854323ac0ebfcdd0f68a8a",
+  "client_secrets": ["p8e-RmQ_H4pRCOceZuboFLDrZfZ4EiW9lOaD"],
+  "technical_account_id": "982A1E806773DE9F0A495C57@techacct.adobe.com",
+  "technical_account_email": "6583b58b-6741-445f-ab37-afdee80da27d@techacct.adobe.com",
+  "ims_org_id": "437C3E0359B2471E0A495E5F@AdobeOrg",
+  "scopes": [
+    "openid", "AdobeID", "read_organizations", "additional_info.projectedProductContext", "read_pc.dma_aem_ams"
+  ],
+  "oauth_enabled": true
+}
