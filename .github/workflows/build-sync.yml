@@ -80,6 +80,8 @@ jobs:
           fi
           git rev-parse --is-shallow-repository
           git status
+                         git config user.name "github-actions"
+                    git config user.email "github-actions@github.com"
           git push adobe sandbox/develop-artifacts
           rm -Rf all/maven-repo/com/practice/
           git apply /tmp/patches/private-artifacts.patch
