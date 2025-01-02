@@ -90,11 +90,15 @@ jobs:
         run: |
             npm install -g @adobe/aio-cli
             aio plugins:install @adobe/aio-cli-plugin-cloudmanager
-            echo "${{ env.CM_API_SERVICE_ACCOUNT_JSON }}" > /tmp/aio-service-account.json
-            cat /tmp/aio-service-account.json
+            echo "${{ env.CM_API_SERVICE_ACCOUNT_JSON }}" > /tmp/aio/aio-service-account.json
+            ls -ltr /tmp/aio 
+            cat /tmp/aio/aio-service-account.json
             aio config:set ims.contexts.aio-cli-plugin-cloudmanager /tmp/aio-service-account.json --file --json
+            echo "config json set"
             aio config:set cloudmanager_programid ${{ env.CM_PROGRAM_ID }}
+            echo "program id set" 
             aio cloudmanager:program:list-pipelines
+            echo "above pipelines are the accurate list for the given program id"
 
       - name: Deploy Packages (AEMaaCS Dev Env)
         if: github.ref_name == 'develop'
