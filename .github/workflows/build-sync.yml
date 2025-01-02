@@ -61,9 +61,10 @@ jobs:
       - name: Sync with Adobe Git (Develop)
         if: github.ref_name == 'develop'
         run: |
-          git show-ref --verify --quiet refs/heads/sandbox/develop-artifacts && git branch -D sandbox/develop-artifacts
+          git show-ref --verify --quiet refs/heads/sandbox/develop-artifacts && git branch -D sandbox/develop-artifacts          
           git remote remove adobe || true
           git remote add adobe "${{ env.REMOTE_GIT_REPO_URL }}"
+          git rev-parse --is-shallow-repository
           git fetch adobe --unshallow
           echo git checkout -b sandbox/develop-artifacts adobe/sandbox/develop-artifacts
           git checkout -b sandbox/develop-artifacts adobe/sandbox/develop-artifacts
@@ -83,6 +84,7 @@ jobs:
           git --version
           git log --oneline -n 5
           git rev-parse --is-shallow-repository
+          git status
           git push adobe sandbox/develop-artifacts
           git checkout develop
 
