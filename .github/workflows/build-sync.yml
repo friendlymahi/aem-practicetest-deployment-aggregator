@@ -67,7 +67,7 @@ jobs:
           git remote remove adobe || true
           git remote add adobe "${{ env.REMOTE_GIT_REPO_URL }}"
           git rev-parse --is-shallow-repository
-          git fetch adobe --unshallow
+          git fetch adobe
           echo git checkout -b sandbox/develop-artifacts adobe/sandbox/develop-artifacts
           git checkout -b sandbox/develop-artifacts adobe/sandbox/develop-artifacts
           git pull adobe sandbox/develop-artifacts
