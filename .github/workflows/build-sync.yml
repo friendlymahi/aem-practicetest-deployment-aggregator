@@ -12,7 +12,6 @@ jobs:
       MAVEN_PRIVATE_REPO_PASSWORD: ${{ secrets.MAVEN_PRIVATE_REPO_PASSWORD }}
       MAVEN_PRIVATE_REPO_URL: ${{ secrets.MAVEN_PRIVATE_REPO_URL }}
       REMOTE_GIT_REPO_URL: ${{ secrets.REMOTE_GIT_REPO_URL }}
-#      CM_API_SERVICE_ACCOUNT_JSON: $${{ secrets.CM_API_SERVICE_ACCOUNT_JSON }}
       CM_AIO_PROGRAM_ID: ${{ secrets.CM_PROGRAM_ID }}
       CM_PROD_PIPELINE_ID: ${{ secrets.CM_PROD_PIPELINE_ID }}
       CM_DEV_PIPELINE_ID: ${{ secrets.CM_DEV_PIPELINE_ID }}
@@ -62,13 +61,15 @@ jobs:
       - name: Sync with Adobe Git (Develop)
         if: github.ref_name == 'develop'
         run: |
+          git show-ref --verify --quiet refs/heads/sandbox/develop-artifacts && git branch -D sandbox/develop-artifacts
+          git remote remove adobe || true
           git remote add adobe "${{ env.REMOTE_GIT_REPO_URL }}"
           git fetch adobe
           echo git checkout -b sandbox/develop-artifacts adobe/sandbox/develop-artifacts
           git checkout -b sandbox/develop-artifacts adobe/sandbox/develop-artifacts
           git pull adobe sandbox/develop-artifacts
           # May result in conflicts when done for the first time
-          if ! git merge develop --allow-unrelated-histories --no-edit; then
+          if ! git merge develop --allow-unrelated-histories --strategy-option ours --no-edit; then
             echo "Merge conflicts detected:"
             git diff --name-only --diff-filter=U
             git diff
