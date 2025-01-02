@@ -21,6 +21,37 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
+      - name: Install & Configure - Adobe I/O CLI & Plugins
+        run: |
+          set -e
+          set -x
+          npm install -g @adobe/aio-cli
+          aio plugins:install @adobe/aio-cli-plugin-cloudmanager
+          cat aio-config.json
+          aio config:set ims.contexts.aio-cli-plugin-cloudmanager aio-config.json --file --json
+          echo "config json set"
+          aio config:set cloudmanager_programid ${{ env.CM_PROGRAM_ID }}
+          echo "program id set" 
+          aio cloudmanager:program:list-pipelines
+          echo "above pipelines are the accurate list for the given program id"
+          printf "%s" "${{ secrets.CM_API_SERVICE_ACCOUNT_JSON }}" > /tmp/aio-service-account.json            
+          ls -ltr /tmp/aio*
+          cat /tmp/aio-service-account.json
+          aio config:set ims.contexts.aio-cli-plugin-cloudmanager /tmp/aio-service-account.json --file --json
+          echo "config json reset"
+          aio config:set cloudmanager_programid ${{ env.CM_PROGRAM_ID }}
+          echo "program id set" 
+          aio cloudmanager:program:list-pipelines
+          echo "above pipelines are the accurate list for the given program id"
+
       - name: Set up Maven with settings.xml
         uses: actions/setup-java@v3
         with:
@@ -80,37 +111,6 @@ jobs:
           git config user.email "github-actions@github.com"
           git commit -am "Bump version to $new_version"
           git push origin develop
-          
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Install jq
-        run: sudo apt-get install -y jq
-
-      - name: Install & Configure - Adobe I/O CLI & Plugins
-        run: |
-            set -e
-            set -x
-            npm install -g @adobe/aio-cli
-            aio plugins:install @adobe/aio-cli-plugin-cloudmanager
-            cat aio-config.json
-            aio config:set ims.contexts.aio-cli-plugin-cloudmanager aio-config.json --file --json
-            echo "config json set"
-            aio config:set cloudmanager_programid ${{ env.CM_PROGRAM_ID }}
-            echo "program id set" 
-            aio cloudmanager:program:list-pipelines
-            echo "above pipelines are the accurate list for the given program id"
-            printf "%s" "${{ secrets.CM_API_SERVICE_ACCOUNT_JSON }}" > /tmp/aio-service-account.json            
-            ls -ltr /tmp/aio*
-            cat /tmp/aio-service-account.json
-            aio config:set ims.contexts.aio-cli-plugin-cloudmanager /tmp/aio-service-account.json --file --json
-            echo "config json reset"
-            aio config:set cloudmanager_programid ${{ env.CM_PROGRAM_ID }}
-            echo "program id set" 
-            aio cloudmanager:program:list-pipelines
-            echo "above pipelines are the accurate list for the given program id"
 
       - name: Deploy Packages (AEMaaCS Dev Env)
         if: github.ref_name == 'develop'
