@@ -71,6 +71,8 @@ jobs:
           echo git checkout -b sandbox/develop-artifacts adobe/sandbox/develop-artifacts
           git checkout -b sandbox/develop-artifacts adobe/sandbox/develop-artifacts
           git pull adobe sandbox/develop-artifacts
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
           # May result in conflicts when done for the first time
           if ! git merge develop --allow-unrelated-histories --strategy-option ours --no-edit; then
             echo "Merge conflicts detected:"
@@ -80,8 +82,6 @@ jobs:
           fi
           git rev-parse --is-shallow-repository
           git status
-                         git config user.name "github-actions"
-                    git config user.email "github-actions@github.com"
           git push adobe sandbox/develop-artifacts
           rm -Rf all/maven-repo/com/practice/
           git apply /tmp/patches/private-artifacts.patch
