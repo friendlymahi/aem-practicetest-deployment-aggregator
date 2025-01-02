@@ -18,7 +18,9 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -64,9 +66,6 @@ jobs:
           git show-ref --verify --quiet refs/heads/sandbox/develop-artifacts && git branch -D sandbox/develop-artifacts          
           git remote remove adobe || true
           git remote add adobe "${{ env.REMOTE_GIT_REPO_URL }}"
-            if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
-                  git fetch origin --unshallow
-            fi          
           git rev-parse --is-shallow-repository
           git fetch adobe --unshallow
           echo git checkout -b sandbox/develop-artifacts adobe/sandbox/develop-artifacts
