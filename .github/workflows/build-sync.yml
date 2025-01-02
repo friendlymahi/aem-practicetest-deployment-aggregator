@@ -86,6 +86,9 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
       - name: Install & Configure - Adobe I/O CLI & Plugins
         run: |
             set -e
@@ -99,7 +102,7 @@ jobs:
             echo "program id set" 
             aio cloudmanager:program:list-pipelines
             echo "above pipelines are the accurate list for the given program id"
-            echo "${{ secrets.CM_API_SERVICE_ACCOUNT_JSON }}" > /tmp/aio-service-account.json
+            echo "${{ secrets.CM_API_SERVICE_ACCOUNT_JSON }}" | jq '.' > /tmp/aio-service-account.json    echo "${{ secrets.CM_API_SERVICE_ACCOUNT_JSON }}" | jq '.' > /tmp/aio-service-account.json
             ls -ltr /tmp/aio*
             cat /tmp/aio-service-account.json
             aio config:set ims.contexts.aio-cli-plugin-cloudmanager /tmp/aio-service-account.json --file --json
