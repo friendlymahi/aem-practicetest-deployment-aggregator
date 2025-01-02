@@ -79,6 +79,10 @@ jobs:
           git apply /tmp/patches/private-artifacts.patch
           git add all/maven-repo/com/practice/*
           git commit -m "resetting private artifacts"
+                    git config --list
+          git --version
+          git log --oneline -n 5
+          git rev-parse --is-shallow-repository
           git push adobe sandbox/develop-artifacts
           git checkout develop
 
