@@ -88,6 +88,8 @@ jobs:
 
       - name: Install & Configure - Adobe I/O CLI & Plugins
         run: |
+            set -e
+            set -x
             npm install -g @adobe/aio-cli
             aio plugins:install @adobe/aio-cli-plugin-cloudmanager
             echo "${{ env.CM_API_SERVICE_ACCOUNT_JSON }}" > /tmp/aio/aio-service-account.json
