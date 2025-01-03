@@ -77,8 +77,9 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
+          git add all/pom.xml
           git add all/lib/*
-          git commit -m "Add downloaded artifacts to all/lib"
+          git commit -m "Add downloaded artifacts to all/lib + POM Updates"
           git status
           git push origin HEAD
 
