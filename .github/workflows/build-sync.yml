@@ -80,7 +80,7 @@ jobs:
           git add all/lib/*
           git commit -m "Add downloaded artifacts to all/lib"
           git status
-#          git push origin HEAD
+          git push origin HEAD
 
       - name: Patch Private Artifacts (Develop)
         if: github.ref_name == 'develop' && github.event.inputs.deploy_artifacts == 'true'

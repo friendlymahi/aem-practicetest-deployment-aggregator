@@ -22,12 +22,19 @@ def validate_args(args):
 
 def download_artifact(url, groupId, artifactId, version, type, classifier=None):
     classifier_part = f"-{classifier}" if classifier else ""
-    file_path = f"all/lib/{groupId.replace('.', '/')}/{artifactId}/{artifactId}-{version}{classifier_part}.{type}"
+    output_filename = f"{artifactId}-{version}{classifier_part}.{type}"
+    file_path = f"all/lib/{groupId.replace('.', '/')}/{artifactId}/{output_filename}"
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
     response = requests.get(url)
     response.raise_for_status()
     with open(file_path, 'wb') as file:
         file.write(response.content)
+
+    # Delete existing versions of the artifact with the same artifact ID and type
+    for file in os.listdir("all/lib"):
+        if file.startswith(artifactId) and file.endswith(f".{type}") and file != output_filename:
+            os.remove(os.path.join("all/lib", file))
+
     return file_path
 
 def update_dependency(dependencies, dependencyArgs, namespaces):
