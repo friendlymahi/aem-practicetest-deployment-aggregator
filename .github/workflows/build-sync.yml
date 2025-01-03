@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       artifactsJson:
-        description: 'Maven artifacts represented as JSON array'
+        description: 'Maven artifacts represented as JSON array. E.g [{"groupId":"com.practice","artifactId":"practice-lib","version":"1.0.0"}]'
         required: false
-        default: '[{}]'
+        default: '[]'
       deploy_artifacts:
         description: 'Deploy artifacts'
         required: true
@@ -34,9 +34,12 @@ jobs:
         id: validate-json
         run: |
           if [ -n "${{ github.event.inputs.artifactsJson }}" ]; then
-            echo "${{ github.event.inputs.artifactsJson }}" 
-            echo "${{ github.event.inputs.artifactsJson }}" | jq '.' > artifacts.json
-            echo "artifact_json_valid=true" >> $GITHUB_ENV
+            if [ "$(echo "${{ github.event.inputs.artifactsJson }}" | jq length)" -eq 0 ]; then
+              echo "artifact_json_valid=false" >> $GITHUB_ENV
+            else
+              echo "${{ github.event.inputs.artifactsJson }}" | jq '.' > artifacts.json
+              echo "artifact_json_valid=true" >> $GITHUB_ENV
+            fi  
           else
             echo "No artifacts JSON provided."
             echo "artifact_json_valid=false" >> $GITHUB_ENV
