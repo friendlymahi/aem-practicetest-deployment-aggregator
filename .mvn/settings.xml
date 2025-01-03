@@ -17,8 +17,25 @@
                 </repository>
             </repositories>
         </profile>
+        <profile>
+            <id>adobe-releases</id>
+            <repositories>
+                <repository>
+                    <id>adobe-releases</id>
+                    <name>Adobe Public Repository</name>
+                    <url>https://repo.adobe.com/nexus/content/groups/public</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+        </profile>
     </profiles>
     <activeProfiles>
         <activeProfile>github</activeProfile>
+        <activeProfile>adobe-releases</activeProfile>
     </activeProfiles>
 </settings>

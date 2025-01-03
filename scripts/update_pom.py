@@ -124,17 +124,18 @@ def update_pom(artifactArgs):
     for key, value in default_args.items():
         if key not in artifactArgs:
             artifactArgs[key] = value
-
+    print(f"default value binding completed !!")
     if artifactArgs['artifactResolution'] == 'download':
         file_path = download_artifact(artifactArgs['url'], artifactArgs['groupId'], artifactArgs['artifactId'], artifactArgs['version'], artifactArgs['type'], artifactArgs.get('classifier'))
         print(f"Downloaded artifact to {file_path}")
+    print(f"download completed if applicable !!")
 
     parser = ET.XMLParser()
     tree = ET.parse('all/pom.xml', parser)
     root = tree.getroot()
     namespaces = {'pom': 'http://maven.apache.org/POM/4.0.0'}
     ET.register_namespace('pom', 'http://maven.apache.org/POM/4.0.0')
-
+    print(f"xml parsing completed !!")
     dependencies = root.find('pom:dependencies', namespaces)
     if dependencies is None:
         dependencies = ET.SubElement(root, '{http://maven.apache.org/POM/4.0.0}dependencies')

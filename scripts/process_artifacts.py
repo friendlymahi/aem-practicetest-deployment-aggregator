@@ -15,9 +15,6 @@ def process_artifacts(json_content):
     for index, artifact in enumerate(artifacts):
         print(f"Processing artifact {index + 1}: {artifact}")
 
-        # Convert artifact dictionary to argparse.Namespace object
-        artifactArgs = argparse.Namespace(**artifact)
-
         # Validate artifact
         try:
             validate_args(artifact)
@@ -25,7 +22,9 @@ def process_artifacts(json_content):
             print(f"Validation error: {e}")
             exit(1)
 
-        # Update POM
+        print(f"Validation completed !!")
+
+    # Update POM
         try:
             update_pom(artifact)
             print(f"Successfully updated POM for artifact: {artifact}")
