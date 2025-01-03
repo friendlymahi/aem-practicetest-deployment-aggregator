@@ -6,7 +6,7 @@ on:
       artifactsJson:
         description: 'Maven artifacts represented as JSON array'
         required: false
-        default: 'artifacts.json'
+        default: '[{}]'
       deploy_artifacts:
         description: 'Deploy artifacts'
         required: true
