@@ -92,6 +92,24 @@ def update_dependency(dependencies, dependencyArgs, namespaces):
 
         print(f"Updated dependency: {dependencyArgs['groupId']}:{dependencyArgs['artifactId']}")
 
+def update_properties(root, dependencyArgs, namespaces):
+    properties = root.find('pom:properties', namespaces)
+    if properties is None:
+        properties = ET.SubElement(root, '{http://maven.apache.org/POM/4.0.0}properties')
+        print("Created new properties element")
+
+    property_name = f"download.{dependencyArgs['groupId']}.{dependencyArgs['artifactId']}"
+    property_element = properties.find(f'pom:{property_name}', namespaces)
+    if dependencyArgs['action'] == 'delete' and property_element is not None:
+        properties.remove(property_element)
+        print(f"Removed property: {property_name}")
+    else:
+        if property_element is None:
+            property_element = ET.SubElement(properties, f'{{http://maven.apache.org/POM/4.0.0}}{property_name}')
+        property_element.text = dependencyArgs['url']
+        print(f"Updated property: {property_name} with URL: {dependencyArgs['url']}")
+
+
 def update_embeddeds(embeddeds, embeddedArgs, namespaces):
     embedded = None
     for emb in embeddeds.findall('pom:embedded', namespaces):
@@ -143,6 +161,9 @@ def update_pom(artifactArgs):
 
     update_dependency(dependencies, artifactArgs, namespaces)
 
+    if artifactArgs['artifactResolution'] == 'download':
+        update_properties(root, artifactArgs, namespaces)
+
     build = root.find('pom:build', namespaces)
     if build is not None:
         plugins = build.find('pom:plugins', namespaces)
@@ -159,8 +180,8 @@ def update_pom(artifactArgs):
                         update_embeddeds(embeddeds, artifactArgs, namespaces)
                     break
 
-    tree.write('all/pom.xml', pretty_print=True, xml_declaration=True, encoding='UTF-8')
-    print("POM file updated successfully.")
+        tree.write('all/pom.xml', pretty_print=True, xml_declaration=True, encoding='UTF-8')
+        print("POM file updated successfully.")
 
 def check_write_permission(file_path):
     return os.access(file_path, os.W_OK)
@@ -187,3 +208,4 @@ if __name__ == '__main__':
     args = vars(parser.parse_args())
     validate_args(args)
     update_pom(args)
+
