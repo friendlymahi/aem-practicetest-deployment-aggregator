@@ -79,9 +79,13 @@ jobs:
           git config user.email "github-actions@github.com"
           git add all/pom.xml
           git add all/lib/*
-          git commit -m "Add downloaded artifacts to all/lib + POM Updates"
-          git status
-          git push origin HEAD
+          if git diff --cached --quiet; then
+              echo "No changes to commit."
+            else
+                git commit -m "Add downloaded artifacts to all/lib + POM Updates"
+                git status
+                git push origin HEAD
+            fi
 
       - name: Patch Private Artifacts (Develop)
         if: github.ref_name == 'develop' && github.event.inputs.deploy_artifacts == 'true'
