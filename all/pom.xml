@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='UTF-8'?>
 <!--
  |  Copyright 2019 Adobe Systems Incorporated
  |
@@ -13,9 +14,7 @@
  |  See the License for the specific language governing permissions and
  |  limitations under the License.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <!-- ====================================================================== -->
@@ -103,7 +102,7 @@
                             <type>zip</type>
                             <target>/apps/practicemain-vendor-packages/application/install</target>
                         </embedded>
-                    </embeddeds>
+                    <embedded><groupId>com.adobe.acs</groupId><artifactId>acs-aem-commons-all</artifactId><type>zip</type><target>/apps/practicemain-packages/install</target></embedded><embedded><groupId>com.coresecure</groupId><artifactId>brightcove.all</artifactId><type>zip</type><target>/apps/practicemain-packages/install</target></embedded><embedded><groupId>com.adobe.acs</groupId><artifactId>acs-aem-tools-content</artifactId><type>zip</type><target>/apps/practicemain-packages/install</target></embedded><embedded><groupId>com.adobe.acs.bundles</groupId><artifactId>com.adobe.acs.bundles.netty</artifactId><type>zip</type><target>/apps/practicemain-packages/install</target></embedded></embeddeds>
                 </configuration>
             </plugin>
             <plugin>
@@ -243,7 +242,7 @@
             <type>zip</type>
             <scope>provided</scope>
         </dependency>
-    </dependencies>
+    <dependency><groupId>com.adobe.acs</groupId><artifactId>acs-aem-commons-all</artifactId><type>zip</type><version>6.9.6</version><classifier>cloud</classifier><scope>provided</scope></dependency><dependency><groupId>com.coresecure</groupId><artifactId>brightcove.all</artifactId><type>zip</type><version>6.1.10</version><scope>system</scope><systemPath>${project.basedir}/lib/com/coresecure/brightcove.all/brightcove.all-6.1.10.zip</systemPath></dependency><dependency><groupId>com.adobe.acs</groupId><artifactId>acs-aem-tools-content</artifactId><type>zip</type><version>1.0.2</version><scope>provided</scope></dependency><dependency><groupId>com.adobe.acs.bundles</groupId><artifactId>com.adobe.acs.bundles.netty</artifactId><type>zip</type><version>1.0.2</version><scope>system</scope><systemPath>${project.basedir}/lib/com/adobe/acs/bundles/com.adobe.acs.bundles.netty/com.adobe.acs.bundles.netty-1.0.2.zip</systemPath></dependency></dependencies>
     <repositories>
         <repository>
             <id>local-repo</id>
@@ -256,4 +255,4 @@
             </snapshots>
         </repository>
     </repositories>
-</project>
+<properties><download.com.coresecure.brightcove.all>https://github.com/brightcove/Adobe-AEM-Brightcove-Connector/releases/download/6.1.10-cloud/brightcove.all-6.1.10.zip</download.com.coresecure.brightcove.all><download.com.adobe.acs.bundles.com.adobe.acs.bundles.netty>https://repo1.maven.org/maven2/com/adobe/acs/bundles/com.adobe.acs.bundles.netty/1.0.2/com.adobe.acs.bundles.netty-1.0.2.zip</download.com.adobe.acs.bundles.com.adobe.acs.bundles.netty></properties></project>
