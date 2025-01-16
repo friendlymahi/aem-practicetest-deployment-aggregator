@@ -273,17 +273,6 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-   <repository>
-      <id>globallink-adaptors</id>
-      <name>Globallink adaptors</name>
-      <url>https://maven2.translations.com/repository/globallink-adaptors</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
     </repositories>
 <properties><download.com.coresecure.brightcove.all>https://github.com/brightcove/Adobe-AEM-Brightcove-Connector/releases/download/6.1.10-cloud/brightcove.all-6.1.10.zip</download.com.coresecure.brightcove.all><download.com.adobe.acs.bundles.com.adobe.acs.bundles.netty>https://repo1.maven.org/maven2/com/adobe/acs/bundles/com.adobe.acs.bundles.netty/1.0.2/com.adobe.acs.bundles.netty-1.0.2.zip</download.com.adobe.acs.bundles.com.adobe.acs.bundles.netty></properties>
 </project>
