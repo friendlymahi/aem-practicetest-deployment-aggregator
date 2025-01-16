@@ -1104,5 +1104,17 @@ Bundle-DocURL:
     </dependencies>
 
   </dependencyManagement>
-
+  <repositories>
+    <repository>
+      <id>globallink-adaptors</id>
+      <name>Globallink adaptors</name>
+      <url>https://maven2.translations.com/repository/globallink-adaptors</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+  </repositories>
 </project>
