@@ -24,6 +24,7 @@ jobs:
       CM_AIO_PROGRAM_ID: ${{ secrets.CM_PROGRAM_ID }}
       CM_PROD_PIPELINE_ID: ${{ secrets.CM_PROD_PIPELINE_ID }}
       CM_DEV_PIPELINE_ID: ${{ secrets.CM_DEV_PIPELINE_ID }}
+      GS4TR_REPO_PASSWORD: ${{ secrets.GS4TR_REPO_PASSWORD }}
 
     steps:
       - name: Checkout code
