@@ -24,6 +24,7 @@ jobs:
       CM_AIO_PROGRAM_ID: ${{ secrets.CM_PROGRAM_ID }}
       CM_PROD_PIPELINE_ID: ${{ secrets.CM_PROD_PIPELINE_ID }}
       CM_DEV_PIPELINE_ID: ${{ secrets.CM_DEV_PIPELINE_ID }}
+      CM_RDE_ENV_ID: ${{ secrets.CM_RDE_ENV_ID }}
       GS4TR_REPO_PASSWORD: ${{ secrets.GS4TR_REPO_PASSWORD }}
 
     steps:
@@ -75,6 +76,46 @@ jobs:
         if: github.ref_name == 'develop'
         run: |
           mvn clean install -U -s.mvn/settings.xml -DskipTests
+
+      - name: Set up Node.js
+        if: github.event.inputs.deploy_artifacts == 'true'
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Setup Adobe IO CLI
+        uses: adobe/aio-cli-setup-action@1.3.0
+        if: github.event.inputs.deploy_artifacts == 'true'
+
+      - name: Install & Configure - Adobe I/O CLI & Plugins
+        if: github.event.inputs.deploy_artifacts == 'true'
+        run: |
+          set -e
+          set -x
+          aio plugins:install @adobe/aio-cli-plugin-cloudmanager
+          echo "${{ secrets.CM_API_SERVICE_ACCOUNT_JSON }}" | base64 --decode > /tmp/aio-service-account.json
+          aio config:set ims.contexts.aio-cli-plugin-cloudmanager /tmp/aio-service-account.json --file --json
+          echo "config json reset"
+          aio config:set cloudmanager_programid ${{ env.CM_AIO_PROGRAM_ID }}
+          echo "program id set"
+          aio cloudmanager:program:list-pipelines
+          echo "above pipelines are the accurate list for the given program id"
+          aio plugins:install @adobe/aio-cli-plugin-aem-rde
+          aio plugins:update
+          aio cloudmanager:program:list-environments
+          echo "Above command displays latest list of environments"
+          aio config:set cloudmanager_environmentid ${{ env.CM_RDE_ENV_ID }}
+          aio aem:rde:status
+
+      - name: Deploy to RDE (Develop)
+        if: github.ref_name == 'develop' && github.event.inputs.deploy_artifacts == 'true'
+        run: |
+          set -e
+          set -x
+          # aio aem:rde:setup
+          # Install the 'all' content package (zip file)
+          zip_file=$(ls all/target/*[0-9]*.zip | grep -E '^[^/]+-[0-9]+\.[0-9]+\.[0-9]+(-SNAPSHOT)?\.zip$')
+          aio aem:rde:install $zip_file
 
       - name: Commit downloaded artifacts (Develop)
         if: github.ref_name == 'develop'
@@ -159,29 +200,7 @@ jobs:
           git commit -am "Bump version to $new_version"
           git push origin develop
 
-      - name: Set up Node.js
-        if: github.event.inputs.deploy_artifacts == 'true'
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
 
-      - name: Setup Adobe IO CLI
-        uses: adobe/aio-cli-setup-action@1.3.0
-        if: github.event.inputs.deploy_artifacts == 'true'
-
-      - name: Install & Configure - Adobe I/O CLI & Plugins
-        if: github.event.inputs.deploy_artifacts == 'true'
-        run: |
-          set -e
-          set -x
-          aio plugins:install @adobe/aio-cli-plugin-cloudmanager
-          echo "${{ secrets.CM_API_SERVICE_ACCOUNT_JSON }}" | base64 --decode > /tmp/aio-service-account.json
-          aio config:set ims.contexts.aio-cli-plugin-cloudmanager /tmp/aio-service-account.json --file --json
-          echo "config json reset"
-          aio config:set cloudmanager_programid ${{ env.CM_AIO_PROGRAM_ID }}
-          echo "program id set"
-          aio cloudmanager:program:list-pipelines
-          echo "above pipelines are the accurate list for the given program id"
       - name: Deploy Packages (AEMaaCS Dev Env)
         if: github.ref_name == 'develop' && github.event.inputs.deploy_artifacts == 'true'
         run: |
