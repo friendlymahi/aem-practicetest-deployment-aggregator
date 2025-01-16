@@ -8,7 +8,7 @@
         <server>
             <id>globallink-adaptors</id>
             <username>aempc</username>
-            <password>${env.CUSTOM_MYCO_REPOSITORY_PASSWORD}</password>
+            <password>Translations1!</password>
         </server>
     </servers>
     <profiles>
