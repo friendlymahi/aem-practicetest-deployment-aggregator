@@ -5,7 +5,7 @@
         <server>
             <id>globallink-adaptors</id>
             <username>aempc</username>
-            <password>Translations1!</password>
+            <password></password>
         </server>
     </servers>
 </settings>
