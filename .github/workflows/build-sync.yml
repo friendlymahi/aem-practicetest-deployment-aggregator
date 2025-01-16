@@ -86,7 +86,7 @@ jobs:
           aio cloudmanager:program:list-environments
           echo "Above command displays latest list of environments"
           aio config:set ims.contexts.aio-cli-plugin-aem-rde /tmp/aio-service-account.json --file --json
-          # aio config:set cloudmanager_orgid ${{ env.CM_AIO_ORG_ID }}
+          aio config:set cloudmanager_orgid ${{ env.CM_AIO_ORG_ID }}
           aio config:set cloudmanager_environmentid ${{ env.CM_RDE_ENV_ID }}
           aio aem:rde:status
   
