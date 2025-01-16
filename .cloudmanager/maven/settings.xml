@@ -5,7 +5,7 @@
         <server>
             <id>globallink-adaptors</id>
             <username>aempc</username>
-            <password>${env.CUSTOM_MYCO_REPOSITORY_PASSWORD}</password>
+            <password>${{vars.CUSTOM_MYCO_REPOSITORY_PASSWORD}}</password>
         </server>
     </servers>
 </settings>
