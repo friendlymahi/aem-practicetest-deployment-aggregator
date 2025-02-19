@@ -27,5 +27,13 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
 
+      - name: Install Other Dependencies
+        run: |
+          pip install lxml requests
+      - name: Install Filesystem Maven Artifacts
+        if: github.ref_name == 'develop'
+        run: |
+          python scripts/install_fs_artifacts.py
+
       - name: Validate Build
-        run: mvn clean install -U -s.mvn/settings.xml -DskipTests
+        run: mvn clean install -U -DskipTests

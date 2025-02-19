@@ -1,0 +1,4 @@
+[submodule "jpmcp-m2-repo"]
+	path = jpmcp-m2-repo
+	url = https://git.cloudmanager.adobe.com/jpmorganchasebank/jpmcp-m2-repo/
+	branch = non-prod/dev
