@@ -30,35 +30,13 @@ jobs:
       CM_DEV_PIPELINE_ID: ${{ secrets.CM_DEV_PIPELINE_ID }}
       CM_RDE_ENV_ID: ${{ secrets.CM_RDE_ENV_ID }}
       GS4TR_REPO_PASSWORD: ${{ secrets.GS4TR_REPO_PASSWORD }}
+      REMOTE_GIT_REPO_URL:  ${{ secrets.REMOTE_CM_WRAPPER_GIT_REPO_URL }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Add/Update remote submodule jpmcp-m2-repo
-        run: |
-            set -x
-            submodule_url="${{ secrets.REMOTE_GIT_REPO_SUBMODULE_URL }}"
-            submodule_url="${submodule_url#https://}"
-            echo "https://${{ secrets.REMOTE_REPO_USERNAME }}:${{ secrets.REMOTE_REPO_PASSWORD }}@$submodule_url" > ~/.git-credentials
-            git config --global credential.helper store
-            if [ -d "jpmcp-m2-repo" ]; then
-              echo "Submodule jpmcp-m2-repo already exists"
-            else
-              git submodule add -b non-prod/dev "${{ secrets.REMOTE_GIT_REPO_URL }}" jpmcp-m2-repo
-            fi
-            git submodule update --init --recursive
-            cd jpmcp-m2-repo
-            branch_name=$(git config -f ../.gitmodules submodule.$(basename $(pwd)).branch)
-            if git show-ref --verify --quiet refs/heads/$branch_name; then
-              git checkout $branch_name
-            else
-              git checkout -b $branch_name origin/$branch_name
-            fi
-            cd ..
-            git submodule update --remote --merge jpmcp-m2-repo
-            git status
       - name: Validate Artifacts JSON
         id: validate-json
         run: |
@@ -101,17 +79,13 @@ jobs:
         run: |
           pip install lxml requests
       - name: Install Filesystem Maven Artifacts
-        if: github.ref_name == 'develop'
+        if: startsWith(github.ref_name, 'sandbox/aggregator/dev')
         run: |
           python scripts/install_fs_artifacts.py
       - name: Validate Build
-        if: github.ref_name == 'develop'
+        if: startsWith(github.ref_name, 'sandbox/aggregator/dev')
         run: |
-          mvn clean install -DskipTests -PcopyDependencies
-      - name: List Copied Artifacts
-        if: github.ref_name == 'develop'
-        run: |
-          ls -ltrR jpmcp-m2-repo/com/
+          mvn clean install -DskipTests
       - name: Set up Node.js
         if: github.event.inputs.deploy_artifacts == 'true'
         uses: actions/setup-node@v3
@@ -146,7 +120,7 @@ jobs:
           aio aem:rde:status
 
       - name: Deploy to RDE (Develop)
-        if: github.ref_name == 'develop' && github.event.inputs.deploy_artifacts == 'true'
+        if: startsWith(github.ref_name, 'sandbox/aggregator/dev') && github.event.inputs.deploy_artifacts == 'true'
         run: |
           set -e
           set -x
@@ -164,107 +138,31 @@ jobs:
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-      - name: Commit downloaded artifacts (Develop)
-        if: github.ref_name == 'develop'
-        run: |
-          git add all/pom.xml
-          git add all/lib/*
-          if git diff --cached --quiet; then
-              echo "No changes to commit."
-            else
-                git commit -m "Add downloaded artifacts to all/lib + POM Updates"
-                git status
-                git push origin HEAD
-            fi
 
-      - name: Commit Private Artifacts (Develop)
-        if: github.ref_name == 'develop' && (github.event.inputs.deploy_artifacts == 'true' || github.event.inputs.sync_artifacts == 'true')
+      - name: Push Artifacts To Adobe CM Git Repo Dev Branch
+        if: startsWith(github.ref_name, 'sandbox/aggregator/dev') && (github.event.inputs.deploy_artifacts == 'true' || github.event.inputs.sync_artifacts == 'true')
         run: |
           set -e
           set -x
-          # Commit the version change back to the repository
-          cd jpmcp-m2-repo
-          git remote -v
-          git status
-          git fetch
-          branch_name=$(git config -f ../.gitmodules submodule.$(basename $(pwd)).branch)
-          git add com/* || true
-          git add net/* || true
-          git status
-          if ! git diff --cached --quiet; then
-              git commit -m "private artifacts - updated at $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-              git push origin $branch_name
-          else
-            echo "No changes to commit."
-          fi
-          cd ..
-          git submodule update --remote --merge jpmcp-m2-repo
-          git add jpmcp-m2-repo
-          git status
-          if ! git diff --cached --quiet; then
-            git commit -m "Update submodule jpmcp-m2-repo"
-            git push origin
-          else
-            echo "No changes to commit."
-          fi
-      - name: Add Adobe Git Remote & Pull Remote Changes If Any
-        run: |
-          set -e
-          set -x
-          git show-ref --verify --quiet refs/heads/sandbox/develop-artifacts && git branch -D sandbox/develop-artifacts
-          git remote remove adobe || true
-          remote_url="${{ secrets.REMOTE_GIT_REPO_URL }}"
+          remote_url="${{ env.REMOTE_GIT_REPO_URL }}"
           remote_url="${remote_url#https://}"
-          echo "https://${{ secrets.REMOTE_REPO_USERNAME }}:${{ secrets.REMOTE_REPO_PASSWORD }}@$remote_url" >> ~/.git-credentials
-          git config --global credential.helper store
-          git remote add adobe "${{ secrets.REMOTE_GIT_REPO_URL }}"
-          git fetch adobe
-          if ! git merge-base --is-ancestor adobe/sandbox/develop-artifacts develop; then
-            echo "Unrelated histories detected. Resetting commit history of remote branch."
-            git checkout adobe/sandbox/develop-artifacts
-            git checkout -b sandbox/develop-artifacts-reset
-            git reset --hard develop
-          git push adobe sandbox/develop-artifacts-reset:refs/heads/sandbox/develop-artifacts --force
-          else
-            git pull adobe sandbox/develop-artifacts --rebase
-            git fetch adobe --tags
-          fi
-
-      - name: Sync with Adobe Git (Develop)
-        if: github.ref_name == 'develop' && (github.event.inputs.deploy_artifacts == 'true' || github.event.inputs.sync_artifacts == 'true')
-        run: |
-          set -e
-          set -x
+          git clone --single-branch --branch sandbox/aggregator/dev "https://${{ secrets.REMOTE_REPO_USERNAME }}:${{ secrets.REMOTE_REPO_PASSWORD }}@$remote_url" aggregator-repo
+          all_module_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f all/pom.xml)
+          rm -Rf aggregator-repo/all/lib/*.zip
+          cp all/target/*.zip aggregator-repo/all/lib/
+          cd aggregator-repo
+          # Update the jpmcp.aggregator.version property in the aggregator repo's pom.xml
+          sed -i "s/<jpmcp.aggregator.version>.*<\/jpmcp.aggregator.version>/<jpmcp.aggregator.version>$all_module_version<\/jpmcp.aggregator.version>/" all/pom.xml
+          git add all/*
+          git commit -m "Aggregator zip file added/replaced (version: $all_module_version)"
+          git push origin sandbox/aggregator/dev
+          cd ..
+          rm -Rf aggregator-repo
           git status
-          git checkout -b sandbox/develop-artifacts adobe/sandbox/develop-artifacts
-          git pull adobe sandbox/develop-artifacts
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          # May result in conflicts when done for the first time
-          if ! git merge develop --allow-unrelated-histories --strategy-option ours --no-edit; then
-            echo "Merge conflicts detected:"
-            git diff --name-only --diff-filter=U
-            git diff
-            exit 1
-          fi
-          git rev-parse --is-shallow-repository
-          git status
-          git push adobe sandbox/develop-artifacts
-          # rm -Rf all/maven-repo/com/practice/
-          # git apply /tmp/patches/private-artifacts.patch
-          # git add all/maven-repo/com/practice/*
-          # git commit -m "resetting private artifacts"
-          git config --list
-          git --version
-          git log --oneline -n 5
-          git rev-parse --is-shallow-repository
-          git status
-          git push adobe sandbox/develop-artifacts
-          rm -Rf ~/.git-credentials
-          git checkout develop
+      
 
       - name: Bump Version (Develop)
-        if: github.ref_name == 'develop' && github.event.inputs.deploy_artifacts == 'true' && success()
+        if: startsWith(github.ref_name, 'sandbox/aggregator/dev') && github.event.inputs.deploy_artifacts == 'true' && success()
         run: |
           # Increment the version for the next snapshot
           current_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
@@ -280,10 +178,10 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git commit -am "Bump version to $new_version"
-          git push origin develop
+          git push origin
 
 
       - name: Deploy Packages (AEMaaCS Dev Env)
-        if: github.ref_name == 'develop' && github.event.inputs.deploy_artifacts == 'true'
+        if: startsWith(github.ref_name, 'sandbox/aggregator/dev') && github.event.inputs.deploy_artifacts == 'true'
         run: |
           aio cloudmanager pipeline create-execution ${{ env.CM_DEV_PIPELINE_ID }}
