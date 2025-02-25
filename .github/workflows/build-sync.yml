@@ -169,11 +169,25 @@ jobs:
           ls -ltr
           mkdir -p ./all/lib/
           cp ../all/target/*.zip ./all/lib/
-          # Update the jpmcp.aggregator.version property in the aggregator repo's pom.xml
-          sed -i "s/<jpmcp.aggregator.version>.*<\/jpmcp.aggregator.version>/<jpmcp.aggregator.version>$all_module_version<\/jpmcp.aggregator.version>/" all/pom.xml
-          git add all/*
-          git commit -m "Aggregator zip file added/replaced (version: $all_module_version)"
-          git push origin sandbox/aggregator/dev
+            # Update the jpmcp.aggregator.version property in the aggregator repo's pom.xml
+            sed -i "s/<jpmcp.aggregator.version>.*<\/jpmcp.aggregator.version>/<jpmcp.aggregator.version>$all_module_version<\/jpmcp.aggregator.version>/" all/pom.xml
+            git add all/
+            if [ -n "$(git status --porcelain)" ]; then
+              git commit -m "Aggregator zip file added/replaced (version: $all_module_version)"
+              
+              # Use Maven Versions Plugin to set the next snapshot version
+              mvn versions:set -DnextSnapshot
+              
+              git add **/pom.xml
+              git commit -m "Version bump post aggregator repo sync"
+            else
+              echo "No changes to commit."
+            fi
+            if [ -n "$(git status --porcelain)" ]; then
+              git push origin sandbox/aggregator/dev
+            else
+              echo "No changes to push."
+            fi
           cd ..
           rm -Rf aggregator-repo
           git status
