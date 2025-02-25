@@ -37,6 +37,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Common Git Config
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
       - name: Install Python Deps
         run: |
           pip install lxml requests
@@ -54,7 +58,7 @@ jobs:
             echo "No artifacts JSON provided."
             echo "artifact_json_valid=false" >> $GITHUB_ENV
           fi
-      - name: Process Artifacts JSON
+      - name: Process Artifacts JSON & Update POM
         if: env.artifact_json_valid == 'true'
         run: |
           set -e
@@ -62,7 +66,13 @@ jobs:
           ls -ltr all/
           echo "${{ github.event.inputs.artifactsJson }}" | jq '.' > artifacts.json
           python scripts/process_artifacts.py --json-content "$(cat artifacts.json)"
-          git --no-pager diff all/pom.xml
+            git --no-pager diff all/pom.xml
+            if [ -n "$(git status --porcelain)" ]; then
+            git add all/pom.xml
+            git commit -m "Update POM with new artifacts"
+            else
+            echo "No changes to commit."
+            fi
           ls -ltrR all/lib
   
       - name: Set up Java
@@ -87,6 +97,13 @@ jobs:
         if: startsWith(github.ref_name, 'sandbox/aggregator/dev')
         run: |
           mvn clean package -DskipTests
+      - name: Push Pending Commits
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git push origin HEAD:sandbox/aggregator/dev
+          else
+            echo "No pending commits to push."
+          fi
       - name: Set up Node.js
         if: github.event.inputs.deploy_artifacts == 'true'
         uses: actions/setup-node@v3
@@ -135,10 +152,6 @@ jobs:
               echo "File $zip_file does not meet the criteria."
             fi
             done
-      - name: Common Git Config
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
 
       - name: Push Artifacts To Adobe CM Git Repo Dev Branch
         if: startsWith(github.ref_name, 'sandbox/aggregator/dev') && (github.event.inputs.deploy_artifacts == 'true' || github.event.inputs.sync_artifacts == 'true')
