@@ -146,10 +146,11 @@ jobs:
           set -x
           remote_url="${{ env.REMOTE_GIT_REPO_URL }}"
           remote_url="${remote_url#https://}"
+          pwd
           ls -ltr
           git clone --single-branch --branch sandbox/aggregator/dev "https://${{ secrets.REMOTE_REPO_USERNAME }}:${{ secrets.REMOTE_REPO_PASSWORD }}@$remote_url" aggregator-repo
           ls -ltr
-          all_module_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f all/pom.xml)
+          all_module_version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
           rm -Rf aggregator-repo/all/lib/*.zip
           cp all/target/*.zip aggregator-repo/all/lib/
           cd aggregator-repo
