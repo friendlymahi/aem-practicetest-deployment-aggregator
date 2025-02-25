@@ -176,7 +176,7 @@ jobs:
               git commit -m "Aggregator zip file added/replaced (version: $all_module_version)"
               
               # Use Maven Versions Plugin to set the next snapshot version
-                mvn versions:set -DnextSnapshot -s/home/runner/.m2/settings.xml
+                mvn versions:set -DnextSnapshot -s/home/runner/.m2/settings.xml -X
               
               git add **/pom.xml
               git commit -m "Version bump post aggregator repo sync"
