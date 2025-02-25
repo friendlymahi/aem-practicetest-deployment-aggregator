@@ -176,7 +176,8 @@ jobs:
               git commit -m "Aggregator zip file added/replaced (version: $all_module_version)"
               
               # Use Maven Versions Plugin to set the next snapshot version
-              mvn clean package
+              pwd
+              mvn clean package -s../.mvn/settings.xml
               mvn versions:set -DnextSnapshot -s../.mvn/settings.xml
               
               git add **/pom.xml
