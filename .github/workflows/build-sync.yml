@@ -180,15 +180,11 @@ jobs:
                 mvn versions:set -DnextSnapshot -s ../.mvn/settings.xml
                 git add pom.xml **/pom.xml
               git commit -m "Version bump post aggregator repo sync"
+              git push origin sandbox/aggregator/dev
             else
               echo "No changes to commit."
             fi
             git status
-            if [ -n "$(git status --porcelain)" ]; then
-              git push origin sandbox/aggregator/dev
-            else
-              echo "No pending commits to push."
-            fi
           cd ..
           rm -Rf aggregator-repo
           git status
