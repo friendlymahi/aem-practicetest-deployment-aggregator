@@ -183,10 +183,11 @@ jobs:
             else
               echo "No changes to commit."
             fi
+            git status
             if [ -n "$(git status --porcelain)" ]; then
               git push origin sandbox/aggregator/dev
             else
-              echo "No changes to push."
+              echo "No pending commits to push."
             fi
           cd ..
           rm -Rf aggregator-repo
