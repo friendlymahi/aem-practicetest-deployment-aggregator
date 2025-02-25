@@ -159,9 +159,9 @@
 
                 <requireJavaVersion>
 
-                  <message>Maven must be executed with a Java 8 JRE or higher.</message>
+                  <message>Maven must be executed with a Java 17 JRE or higher.</message>
 
-                  <version>1.8.0</version>
+                  <version>17</version>
 
                 </requireJavaVersion>
 
