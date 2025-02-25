@@ -1,6 +1,9 @@
 import subprocess
 from lxml import etree
 import re
+import os
+import tempfile
+import requests
 
 POM_FILE = 'all/pom.xml'
 
@@ -67,9 +70,19 @@ def parse_pom():
 
     return artifacts, dependencies_to_remove, tree, root
 
+def download_file(url, dest_path):
+    response = requests.get(url)
+    response.raise_for_status()
+    with open(dest_path, 'wb') as file:
+        file.write(response.content)
+
 def install_artifacts(artifacts):
     for artifact in artifacts:
         evaluated_system_path = evaluate_string_with_properties(artifact["systemPath"])
+        if evaluated_system_path.startswith('http://') or evaluated_system_path.startswith('https://'):
+            with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+                download_file(evaluated_system_path, temp_file.name)
+                evaluated_system_path = temp_file.name
         subprocess.run([
             'mvn', 'install:install-file',
             f'-DgroupId={artifact["groupId"]}',
