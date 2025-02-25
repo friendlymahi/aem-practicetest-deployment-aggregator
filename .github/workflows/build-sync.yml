@@ -138,7 +138,7 @@ jobs:
           aio aem:rde:status
 
       - name: Deploy to RDE (Develop)
-        if: startsWith(github.ref_name, 'sandbox/aggregator/dev') && github.event.inputs.deploy_artifacts == 'true'
+        if: startsWith(github.ref_name, 'sandbox/aggregator/dev1') && github.event.inputs.deploy_artifacts == 'true'
         run: |
           set -e
           set -x
@@ -176,7 +176,7 @@ jobs:
               git commit -m "Aggregator zip file added/replaced (version: $all_module_version)"
               
               # Use Maven Versions Plugin to set the next snapshot version
-              mvn versions:set -DnextSnapshot
+                mvn versions:set -DnextSnapshot -s "${M2_HOME}/conf/settings.xml"
               
               git add **/pom.xml
               git commit -m "Version bump post aggregator repo sync"
