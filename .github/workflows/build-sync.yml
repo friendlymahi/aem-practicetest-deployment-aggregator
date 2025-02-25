@@ -177,7 +177,6 @@ jobs:
               
               # Use Maven Versions Plugin to set the next snapshot version
               pwd
-              mvn clean package -s../.mvn/settings.xml
               mvn versions:set -DnextSnapshot -s../.mvn/settings.xml
               
               git add **/pom.xml
