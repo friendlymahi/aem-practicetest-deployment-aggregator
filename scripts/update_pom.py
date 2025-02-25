@@ -65,26 +65,17 @@ def update_dependency(dependencies, dependencyArgs, namespaces):
             version_element = ET.SubElement(dependency, '{http://maven.apache.org/POM/4.0.0}version')
         version_element.text = dependencyArgs['version']
 
-        classifier_element = dependency.find('pom:classifier', namespaces)
-        if 'classifier' in dependencyArgs:
+        if 'classifier' in dependencyArgs and dependencyArgs['classifier']:
+            classifier_element = dependency.find('pom:classifier', namespaces)
             if classifier_element is None:
                 classifier_element = ET.SubElement(dependency, '{http://maven.apache.org/POM/4.0.0}classifier')
             classifier_element.text = dependencyArgs['classifier']
-        elif classifier_element is not None:
-            dependency.remove(classifier_element)
-
-        if dependencyArgs['artifactResolution'] == 'download':
-            scope_element = dependency.find('pom:scope', namespaces)
-            if scope_element is None:
-                scope_element = ET.SubElement(dependency, '{http://maven.apache.org/POM/4.0.0}scope')
-            scope_element.text = 'system'
-
-            system_path_element = dependency.find('pom:systemPath', namespaces)
-            if system_path_element is None:
-                system_path_element = ET.SubElement(dependency, '{http://maven.apache.org/POM/4.0.0}systemPath')
-            classifier_part = f"-{dependencyArgs['classifier']}" if 'classifier' in dependencyArgs else ""
-            system_path_element.text = f"${{project.basedir}}/lib/{dependencyArgs['groupId'].replace('.', '/')}/{dependencyArgs['artifactId']}/{dependencyArgs['artifactId']}-{dependencyArgs['version']}{classifier_part}.{dependencyArgs['type']}"
         else:
+            classifier_element = dependency.find('pom:classifier', namespaces)
+            if classifier_element is not None:
+                dependency.remove(classifier_element)
+
+        if 'scope' in dependencyArgs and dependencyArgs['scope']:
             scope_element = dependency.find('pom:scope', namespaces)
             if scope_element is None:
                 scope_element = ET.SubElement(dependency, '{http://maven.apache.org/POM/4.0.0}scope')
@@ -98,16 +89,36 @@ def update_properties(root, dependencyArgs, namespaces):
         properties = ET.SubElement(root, '{http://maven.apache.org/POM/4.0.0}properties')
         print("Created new properties element")
 
-    property_name = f"download.{dependencyArgs['groupId']}.{dependencyArgs['artifactId']}"
-    property_element = properties.find(f'pom:{property_name}', namespaces)
-    if dependencyArgs['action'] == 'delete' and property_element is not None:
-        properties.remove(property_element)
-        print(f"Removed property: {property_name}")
-    else:
-        if property_element is None:
-            property_element = ET.SubElement(properties, f'{{http://maven.apache.org/POM/4.0.0}}{property_name}')
-        property_element.text = dependencyArgs['url']
-        print(f"Updated property: {property_name} with URL: {dependencyArgs['url']}")
+    fs_artifacts = properties.find('pom:filesystem-artifacts', namespaces)
+    if fs_artifacts is None:
+        fs_artifacts = ET.SubElement(properties, '{http://maven.apache.org/POM/4.0.0}filesystem-artifacts')
+        print("Created new filesystem-artifacts element")
+
+    artifact_info = f"artifact:groupId={dependencyArgs['groupId']},artifactId={dependencyArgs['artifactId']},version={dependencyArgs['version']},type={dependencyArgs['type']}"
+    if 'classifier' in dependencyArgs and dependencyArgs['classifier']:
+        artifact_info += f",classifier={dependencyArgs['classifier']}"
+    artifact_info += f",systemPath={dependencyArgs['url']};"
+
+    existing_artifacts = fs_artifacts.text.split(';') if fs_artifacts.text else []
+    updated = False
+
+    for i, artifact in enumerate(existing_artifacts):
+        if artifact.startswith(f"artifact:groupId={dependencyArgs['groupId']},artifactId={dependencyArgs['artifactId']}"):
+            parts = artifact.split(',')
+            for j, part in enumerate(parts):
+                if part.startswith('version='):
+                    parts[j] = f"version={dependencyArgs['version']}"
+                elif part.startswith('systemPath='):
+                    parts[j] = f"systemPath={dependencyArgs['url']}"
+            existing_artifacts[i] = ','.join(parts)
+            updated = True
+            break
+
+    if not updated:
+        existing_artifacts.append(artifact_info)
+
+    fs_artifacts.text = ''.join(existing_artifacts)
+    print(f"Updated filesystem artifacts: {fs_artifacts.text}")
 
 
 def update_embeddeds(embeddeds, embeddedArgs, namespaces):
@@ -143,12 +154,8 @@ def update_pom(artifactArgs):
         if key not in artifactArgs:
             artifactArgs[key] = value
     print(f"default value binding completed !!")
-    if artifactArgs['artifactResolution'] == 'download':
-        file_path = download_artifact(artifactArgs['url'], artifactArgs['groupId'], artifactArgs['artifactId'], artifactArgs['version'], artifactArgs['type'], artifactArgs.get('classifier'))
-        print(f"Downloaded artifact to {file_path}")
-    print(f"download completed if applicable !!")
 
-    parser = ET.XMLParser()
+    parser = ET.XMLParser(remove_blank_text=True)
     tree = ET.parse('all/pom.xml', parser)
     root = tree.getroot()
     namespaces = {'pom': 'http://maven.apache.org/POM/4.0.0'}
@@ -180,8 +187,12 @@ def update_pom(artifactArgs):
                         update_embeddeds(embeddeds, artifactArgs, namespaces)
                     break
 
-        tree.write('all/pom.xml', pretty_print=True, xml_declaration=True, encoding='UTF-8')
-        print("POM file updated successfully.")
+    tree.write('all/pom.xml', pretty_print=True, xml_declaration=True, encoding='UTF-8')
+    print("POM file updated successfully.")
+
+    # Reformat the file to preserve comments
+    os.system(f"xmllint --format all/pom.xml -o all/pom.xml")
+    print("POM file reformatted successfully.")
 
 def check_write_permission(file_path):
     return os.access(file_path, os.W_OK)
