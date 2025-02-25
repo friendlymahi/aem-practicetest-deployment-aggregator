@@ -17,17 +17,17 @@
 
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.practice.main</groupId>
+  <groupId>net.jpmchase.jpmcp</groupId>
 
-  <artifactId>aem-practice-main-deployment</artifactId>
+  <artifactId>jpmcp-aggregator</artifactId>
 
   <packaging>pom</packaging>
 
-  <version>0.0.39-SNAPSHOT</version>
+  <version>1.0.0-SNAPSHOT</version>
 
-  <name>Practice Main Project 1</name>
+  <name>JPMCP Aggregator Repo</name>
 
-  <description>Practice Main Project 1</description>
+  <description>JPMCP Aggregator Repo</description>
 
   <modules>
 
@@ -82,8 +82,6 @@
     <aem.sdk.api>2024.11.18751.20241128T090041Z-241100</aem.sdk.api>
 
     <aemanalyser.version>1.4.10</aemanalyser.version>
-
-    <componentGroupName>Practice Main Project 1</componentGroupName>
 
   </properties>
 

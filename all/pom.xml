@@ -20,18 +20,18 @@
   <!-- P A R E N T  P R O J E C T  D E S C R I P T I O N                      -->
   <!-- ====================================================================== -->
   <parent>
-    <groupId>com.practice.main</groupId>
-    <artifactId>aem-practice-main-deployment</artifactId>
-    <version>0.0.39-SNAPSHOT</version>
+    <groupId>net.jpmchase.jpmcp</groupId>
+    <artifactId>jpmcp-aggregator</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <!-- ====================================================================== -->
   <!-- P R O J E C T  D E S C R I P T I O N                                   -->
   <!-- ====================================================================== -->
-  <artifactId>aem-practice-main-deployment.all</artifactId>
+  <artifactId>jpmcp-aggregator.all</artifactId>
   <packaging>content-package</packaging>
-  <name>Practice Main Project 1 - All</name>
-  <description>All content package for Practice Main Project 1</description>
+  <name>JPMCP Aggregator Repo - All</name>
+  <description>All content package for JPMCP Aggregator Repo</description>
   <!-- ====================================================================== -->
   <!-- B U I L D   D E F I N I T I O N                                        -->
   <!-- ====================================================================== -->
@@ -48,7 +48,7 @@
           <properties>
             <cloudManagerTarget>all</cloudManagerTarget>
           </properties>
-          <group>com.practice.main</group>
+          <group>JPMCP-Aggregator</group>
           <packageType>container</packageType>
           <!-- skip sub package validation for now as some vendor packages like CIF apps will not pass -->
           <skipSubPackageValidation>true</skipSubPackageValidation>
@@ -145,64 +145,6 @@
   <!-- P R O F I L E S                                                        -->
   <!-- ====================================================================== -->
   <profiles>
-    <profile>
-      <id>copyDependencies</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.day.jcr.vault</groupId>
-            <artifactId>content-package-maven-plugin</artifactId>
-            <extensions>true</extensions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <version>3.8.1</version>
-            <executions>
-              <execution>
-                <id>copy-dependencies</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>copy-dependencies</goal>
-                </goals>
-                <configuration>
-                  <outputDirectory>${project.basedir}/../jpmcp-m2-repo</outputDirectory>
-                  <copyPom>true</copyPom>
-                  <addParentPoms>true</addParentPoms>
-                  <useRepositoryLayout>true</useRepositoryLayout>
-                  <excludeScope>system</excludeScope>
-                  <overWriteSnapshots>true</overWriteSnapshots>
-                  <overWriteReleases>true</overWriteReleases>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>cloud-manager</id>
-      <activation>
-        <property>
-          <name>env.CM_BUILD</name>
-          <value>true</value>
-        </property>
-      </activation>
-      <repositories>
-        <repository>
-          <id>local-repo</id>
-          <url>file://${project.basedir}/../jpmcp-m2-repo</url>
-          <releases>
-            <checksumPolicy>ignore</checksumPolicy>
-            <updatePolicy>never</updatePolicy>
-          </releases>
-          <snapshots>
-            <checksumPolicy>ignore</checksumPolicy>
-            <updatePolicy>never</updatePolicy>
-          </snapshots>
-        </repository>
-      </repositories>
-    </profile>
     <profile>
       <id>autoInstallSinglePackage</id>
       <activation>
@@ -324,8 +266,7 @@
   <properties>
     <filesystem-artifacts>
 artifact:groupId=com.practice.main,artifactId=netcentric-acl-config,version=0.0.1-SNAPSHOT,type=zip,systemPath=${project.basedir}/lib/netcentric-acl-config-0.0.1-SNAPSHOT.zip;
-artifact:groupId=com.coresecure,artifactId=brightcove.all,version=6.1.10,type=zip,systemPath=${project.basedir}/lib/com/coresecure/brightcove.all/brightcove.all-6.1.10.zip;
-artifact:groupId=com.adobe.acs.bundles,artifactId=com.adobe.acs.bundles.netty,version=1.0.2,type=zip,systemPath=${project.basedir}/lib/com/adobe/acs/bundles/com.adobe.acs.bundles.netty/com.adobe.acs.bundles.netty-1.0.2.zip</filesystem-artifacts>
-    <download.com.coresecure.brightcove.all>https://github.com/brightcove/Adobe-AEM-Brightcove-Connector/releases/download/6.1.10-cloud/brightcove.all-6.1.10.zip</download.com.coresecure.brightcove.all>
+artifact:groupId=com.coresecure,artifactId=brightcove.all,version=6.1.10,type=zip,systemPath=https://github.com/brightcove/Adobe-AEM-Brightcove-Connector/releases/download/6.1.10-cloud/brightcove.all-6.1.10.zip;
+    </filesystem-artifacts>
   </properties>
 </project>

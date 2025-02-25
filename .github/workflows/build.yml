@@ -3,9 +3,10 @@ name: Validate Maven Artifacts Bundling
 on:
   push:
     branches:
-      - main
-      - release
-      - develop
+    - main
+    - release
+    - develop
+    - sandbox/aggregator**
 
 jobs:
   publish:
