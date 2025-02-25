@@ -153,6 +153,7 @@ jobs:
           cd aggregator-repo
           git status
           ls -ltr
+          mkdir -p ./all/lib/
           cp ../all/target/*.zip ./all/lib/
           # Update the jpmcp.aggregator.version property in the aggregator repo's pom.xml
           sed -i "s/<jpmcp.aggregator.version>.*<\/jpmcp.aggregator.version>/<jpmcp.aggregator.version>$all_module_version<\/jpmcp.aggregator.version>/" all/pom.xml
