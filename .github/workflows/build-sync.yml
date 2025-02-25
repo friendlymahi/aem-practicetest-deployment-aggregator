@@ -177,9 +177,8 @@ jobs:
               
               # Use Maven Versions Plugin to set the next snapshot version
               pwd
-              mvn versions:set -DnextSnapshot -s../.mvn/settings.xml
-              
-              git add **/pom.xml
+                mvn versions:set -DnextSnapshot -s ../.mvn/settings.xml
+                git add pom.xml **/pom.xml
               git commit -m "Version bump post aggregator repo sync"
             else
               echo "No changes to commit."
