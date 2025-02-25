@@ -37,6 +37,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Install Python Deps
+        run: |
+          pip install lxml requests
       - name: Validate Artifacts JSON
         id: validate-json
         run: |
@@ -75,9 +78,7 @@ jobs:
       
       - name: Configure Maven Settings
         uses: s4u/maven-settings-action@v3.1.0
-      - name: Install Other Dependencies
-        run: |
-          pip install lxml requests
+
       - name: Install Filesystem Maven Artifacts
         if: startsWith(github.ref_name, 'sandbox/aggregator/dev')
         run: |
