@@ -96,7 +96,7 @@ jobs:
       - name: Validate Build
         if: startsWith(github.ref_name, 'sandbox/aggregator/dev')
         run: |
-          mvn clean package -DskipTests
+          mvn clean install -DskipTests
       - name: Push Pending Commits
         run: |
           if [ -n "$(git status --porcelain)" ]; then
