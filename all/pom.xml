@@ -142,6 +142,9 @@
             <goals>
               <goal>project-analyse</goal>
             </goals>
+            <configuration>
+              <sdkVersion>${aem.sdk.api}</sdkVersion>
+            </configuration>
           </execution>
         </executions>
       </plugin>
