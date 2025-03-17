@@ -79,9 +79,9 @@
 
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <aem.sdk.api>2024.11.18751.20241128T090041Z-241100</aem.sdk.api>
+    <aem.sdk.api>2025.3.19823.20250304T101418Z-250200</aem.sdk.api>
 
-    <aemanalyser.version>1.4.10</aemanalyser.version>
+    <aemanalyser.version>1.6.6</aemanalyser.version>
 
   </properties>
 
